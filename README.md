@@ -41,3 +41,5 @@ Dans le projet SSH : `pnpm status`, `pnpm backup`, `pnpm check`, `pnpm test`. Le
 Le worker conserve 14 sauvegardes quotidiennes PostgreSQL, photos comprises, dans `/opt/ames-errantes/shared/backups`. Depuis le PC, `Sauvegarder.cmd` copie une sauvegarde distante dans `data/backups-raspberry`. Le code est sauvegardé par Git ; le PC récupère les commits de la Raspberry. Une copie sur la même carte SD ne protège pas contre une panne de la carte : conserver également les sauvegardes sur le PC ou un autre support.
 
 Le fonctionnement reste limité au réseau domestique. Accéder depuis ailleurs demandera un accès réseau privé adapté. Les limites matérielles et résultats des vérifications sont dans [VALIDATION.md](VALIDATION.md).
+
+Le [guide Mac](ACCES-MAC.md) détaille la connexion personnelle de ta mère et les premières demandes à l’IA.

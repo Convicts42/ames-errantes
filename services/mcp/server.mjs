@@ -294,12 +294,9 @@ export function createServer(db = getDatabase(), options = {}) {
   );
   return server;
 }
-if (
-  process.argv[1] &&
-  import.meta.url === pathToFileURL(process.argv[1]).href
-) {
+export async function startServer(options = {}) {
   const db = getDatabase();
-  const server = createServer(db);
+  const server = createServer(db, options);
   await server.connect(new StdioServerTransport());
   let closing = false;
   const shutdown = async () => {
@@ -311,4 +308,11 @@ if (
   process.stdin.once("end", () => void shutdown());
   process.once("SIGTERM", () => void shutdown());
   process.once("SIGINT", () => void shutdown());
+}
+
+if (
+  process.argv[1] &&
+  import.meta.url === pathToFileURL(process.argv[1]).href
+) {
+  await startServer();
 }

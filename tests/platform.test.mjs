@@ -538,6 +538,7 @@ test("Documents-only MCP rejects site administration and records a distinct acto
         assert.equal(overview.activity[0].actor, "IA · Documents test");
         assert.deepEqual(await pub.publicDocuments(null, db), []);
       },
-      { AMES_MCP_PROFILE: "documents", AMES_MCP_ACTOR: "IA · Documents test" },
+      { AMES_MCP_PROFILE: "full", AMES_MCP_ACTOR: "IA · Documents test" },
+      "documents.mjs",
     );
   }));
