@@ -1,27 +1,14 @@
-import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, writeFileSync } from "node:fs";
 import { randomBytes } from "node:crypto";
-import { resolve, dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
+import { root, docker } from "./lib/environment.mjs";
 import { spawnSync } from "node:child_process";
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const docker =
-  process.platform === "win32"
-    ? [
-        join(
-          process.env.LOCALAPPDATA || "",
-          "Programs/DockerDesktop/resources/bin/docker.exe",
-        ),
-        join(
-          process.env.ProgramFiles || "C:/Program Files",
-          "Docker/Docker/resources/bin/docker.exe",
-        ),
-      ].find(existsSync) || "docker"
-    : "docker";
 const action = process.argv[2] || "start";
-if (
-  existsSync(join(root, "deploy/raspberry/active.json")) &&
-  action !== "test"
-) {
+if (action === "test") {
+  await import("./qa.mjs");
+  process.exit(0);
+}
+if (existsSync(join(root, "deploy/raspberry/active.json"))) {
   const result = spawnSync(
     process.execPath,
     [join(root, "scripts/raspberry.mjs"), action],
@@ -36,22 +23,10 @@ if (!existsSync(join(root, ".env")) && action === "start") {
     { flag: "wx", mode: 0o600 },
   );
 }
-mkdirSync(join(root, "data/migration"), { recursive: true });
 const commands = {
   start: ["up", "-d", "--build", "--wait"],
   stop: ["stop"],
   status: ["ps"],
-  test: [
-    "run",
-    "--rm",
-    "--no-deps",
-    "-v",
-    `${join(root, "data/migration").replaceAll("\\", "/")}:/migration:ro`,
-    "espace",
-    "node",
-    "--test",
-    "/app/tests/platform.test.mjs",
-  ],
   backup: [
     "exec",
     "-T",

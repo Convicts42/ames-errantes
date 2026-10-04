@@ -27,10 +27,5 @@
     "sharp": "^0.35.5",
     "three": "0.186.1",
     "@ames/core": "workspace:*"
-  },
-  "devDependencies": {
-    "@playwright/test": "1.63.0",
-    "parse5": "8.0.1",
-    "prettier": "3.9.9"
   }
 }

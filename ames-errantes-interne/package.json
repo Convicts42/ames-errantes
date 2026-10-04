@@ -17,7 +17,7 @@
     "db:backup": "node --env-file-if-exists=.env.local scripts/manage.mjs backup",
     "test:unit": "node ../scripts/platform-cli.mjs test",
     "test": "node ../scripts/platform-cli.mjs test",
-    "format": "prettier --write src scripts tests *.mjs *.js *.json"
+    "format": "pnpm --dir .. format"
   },
   "dependencies": {
     "next": "16.3.8",
@@ -31,9 +31,5 @@
     "sanitize-html": "2.18.0",
     "lucide-react": "1.52.0",
     "@ames/core": "workspace:*"
-  },
-  "devDependencies": {
-    "@playwright/test": "1.63.0",
-    "prettier": "3.9.9"
   }
 }

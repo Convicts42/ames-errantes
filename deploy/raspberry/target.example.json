@@ -1,0 +1,6 @@
+{
+  "ssh": "utilisateur@raspberry.local",
+  "root": "/opt/ames-errantes",
+  "site": "http://raspberry.local:4173",
+  "space": "http://raspberry.local:4174"
+}

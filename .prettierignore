@@ -1,0 +1,12 @@
+node_modules/
+.pnpm-store/
+**/.next/
+/data/
+/refs/
+**/data/*.sqlite*
+**/.env*
+deploy/raspberry/active.json
+deploy/raspberry/target.json
+pnpm-lock.yaml
+**/test-results/
+**/playwright-report/

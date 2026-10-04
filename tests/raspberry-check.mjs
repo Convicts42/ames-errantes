@@ -47,8 +47,24 @@ try {
   await expect(
     page.getByRole("link", { name: "Voir la fiche", exact: true }).first(),
   ).toHaveAttribute("href", target.site + "/" + animals[0].slug);
-  await expect.poll(() => page.locator(".admin-animal-grid img").evaluateAll(images => images.length === 2 && images.every(image => image.complete && image.naturalWidth > 0)), { timeout: 15000 }).toBe(true);
-  for (const animal of animals) assert.equal((await context.request.get(target.space + animal.image)).status(), 200);
+  await expect
+    .poll(
+      () =>
+        page
+          .locator(".admin-animal-grid img")
+          .evaluateAll(
+            (images) =>
+              images.length === 2 &&
+              images.every((image) => image.complete && image.naturalWidth > 0),
+          ),
+      { timeout: 15000 },
+    )
+    .toBe(true);
+  for (const animal of animals)
+    assert.equal(
+      (await context.request.get(target.space + animal.image)).status(),
+      200,
+    );
   await page.screenshot({
     path: "data/qa/raspberry/gestion.png",
     fullPage: true,

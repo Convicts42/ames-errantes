@@ -1,0 +1,34 @@
+name: ames-errantes-qa
+x-app: &app
+  build: .
+  image: ames-errantes-qa:4
+  init: true
+  restart: "no"
+  environment:
+    DATABASE_URL: postgres://ames:${QA_POSTGRES_PASSWORD:?QA initialization required}@db:5432/ames
+    COOKIE_SECURE: "false"
+    PUBLIC_SITE_URL: http://localhost:4473
+    PUBLIC_SPACE_URL: http://localhost:4474
+services:
+  db:
+    image: postgres:18-bookworm
+    restart: "no"
+    environment:
+      POSTGRES_USER: ames
+      POSTGRES_DB: ames
+      POSTGRES_PASSWORD: ${QA_POSTGRES_PASSWORD:?QA initialization required}
+    volumes:
+      - qa-postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ames -d ames"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+  site:
+    <<: *app
+    working_dir: /app/ame-errante
+  espace:
+    <<: *app
+    working_dir: /app/ames-errantes-interne
+volumes:
+  qa-postgres:

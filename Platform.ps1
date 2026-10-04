@@ -1,6 +1,10 @@
 param([ValidateSet('start','stop','backup','status','test')][string]$Action='start')
 $ErrorActionPreference='Stop'
 Set-Location -LiteralPath $PSScriptRoot
+if ($Action -eq 'test') {
+  & node (Join-Path $PSScriptRoot 'scripts/qa.mjs') test
+  exit $LASTEXITCODE
+}
 if ((Test-Path -LiteralPath (Join-Path $PSScriptRoot 'deploy/raspberry/active.json')) -and $Action -ne 'test') {
   & node (Join-Path $PSScriptRoot 'scripts/raspberry.mjs') $Action
   if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -41,7 +45,6 @@ switch($Action) {
   }
   stop { & $docker compose stop }
   status { & $docker compose ps }
-  test { & $docker compose run --rm --no-deps -v "${PSScriptRoot}/data/migration:/migration:ro" espace node --test /app/tests/platform.test.mjs }
   backup {
     & $docker compose exec -T espace node /app/packages/core/src/backup-command.mjs
     if($LASTEXITCODE -ne 0) { throw 'La sauvegarde a echoue.' }

@@ -3,16 +3,17 @@ import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { join } from "node:path";
+import { docker } from "../scripts/lib/environment.mjs";
 import { randomUUID } from "node:crypto";
 const execute = promisify(execFile);
-const docker = join(
-  process.env.LOCALAPPDATA,
-  "Programs/DockerDesktop/resources/bin/docker.exe",
-);
 const internal = "http://localhost:4474",
   publicSite = "http://localhost:4473";
-const browser = await chromium.launch({ channel: "chrome", headless: true });
+const browser = await chromium.launch({
+  channel:
+    process.env.PLAYWRIGHT_CHANNEL ||
+    (process.platform === "win32" ? "chrome" : undefined),
+  headless: true,
+});
 const context = await browser.newContext({
   viewport: { width: 1440, height: 1000 },
 });
@@ -76,7 +77,7 @@ try {
   );
   assert.equal(denied.status(), 403);
   log(
-    "Connexion intranet, reprise de 15 dossiers et administration publique supprimée",
+    "Connexion intranet, 15 dossiers fictifs et administration publique supprimée",
   );
   await page.screenshot({ path: "data/qa/dashboard.png", fullPage: true });
   await page.getByRole("button", { name: "Animaux & demandes" }).click();

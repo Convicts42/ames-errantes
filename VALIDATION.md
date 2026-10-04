@@ -1,3 +1,18 @@
+# Nettoyage du dépôt — 4 octobre 2026
+
+État : **vérifié localement, non déployé**. Aucun accès à la Raspberry pendant le remplacement de son alimentation. Les résultats distants ci-dessous décrivent la vérification précédente, pas son état pendant cette maintenance.
+
+- Dépôt unique sur `main` ; sept commits historiques conservés et deux bundles de secours vérifiés.
+- Installation à verrou figé réussie ; dépendances de développement centralisées, 12 paquets retirés du verrou.
+- Construction Linux des deux applications réussie dans Docker.
+- Contrôle de syntaxe/imports/exclusions Git réussi ; formatage et `git diff --check` sans erreur.
+- 10/10 tests PostgreSQL/MCP réussis dans le projet Docker QA séparé, avec des données fictives : conflits, permissions, publication, import et restauration compris.
+- Parcours navigateur réussis : gestion des animaux, réglages partagés, demandes, écritures MCP, conflits humains/IA, publication/retrait, comptes, photos privées, mobile et 18 pages publiques sans erreur JavaScript.
+- Configuration GitHub Actions préparée ; aucune exécution sur GitHub, aucun dépôt distant configuré.
+- Déploiement désormais lié à un commit propre et à une archive Git. Cette nouvelle procédure de transfert/activation n’a pas été exécutée contre la Raspberry pendant cette intervention.
+
+---
+
 # Déploiement Raspberry — 4 octobre 2026
 
 État actuel : **opérationnel sur le réseau domestique, avec les réserves matérielles et réseau ci-dessous**.

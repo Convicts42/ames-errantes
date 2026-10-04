@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
-import { readFile, mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { spawnSync } from "node:child_process";
@@ -23,6 +23,7 @@ import { readPhoto } from "../packages/core/src/site/media.mjs";
 import { consumeRate } from "../packages/core/src/rate-limit.mjs";
 import { importSqliteExport } from "../packages/core/src/legacy-import.mjs";
 import { mcpClient } from "../services/mcp/test-client.mjs";
+import { legacyFixture } from "./fixtures/legacy.mjs";
 const user = { name: "Équipe test" };
 const document = {
   title: "Refuge test",
@@ -326,16 +327,12 @@ test("Requests are idempotent under concurrency; STOP and privacy deletion use J
     assert.ok(!audit.includes("Privé"));
   }));
 
-test("The real SQLite export migrates every document and revision without replacing data", () =>
+test("A synthetic SQLite export preserves documents and history without replacing data", () =>
   isolatedDatabase(async (db) => {
-    const source = JSON.parse(
-      await readFile(
-        process.env.LEGACY_EXPORT || "/migration/source.json",
-        "utf8",
-      ),
-    );
+    const source = legacyFixture();
     const result = await importSqliteExport(source, db);
     assert.equal(result.counts.documents, source.workspace.documents.length);
+    assert.equal(result.counts.revisions, source.workspace.revisions.length);
     for (const d of source.workspace.documents) {
       const row = (
         await db.query("SELECT * FROM documents WHERE id=$1", [d.id])
@@ -348,6 +345,13 @@ test("The real SQLite export migrates every document and revision without replac
         "imported_markdown",
       ])
         assert.equal(row[key], d[key]);
+      for (const expected of source.workspace.revisions.filter(
+        (r) => r.document_id === d.id,
+      )) {
+        const actual = await docs.getRevision(d.id, expected.id, db);
+        assert.equal(actual.version, expected.version);
+        assert.equal(actual.html, expected.html);
+      }
     }
     assert.equal((await importSqliteExport(source, db)).alreadyImported, true);
     await assert.rejects(
@@ -364,12 +368,7 @@ test("The real SQLite export migrates every document and revision without replac
 
 test("A failed import rolls back accounts, content and history", () =>
   isolatedDatabase(async (db) => {
-    const source = JSON.parse(
-      await readFile(
-        process.env.LEGACY_EXPORT || "/migration/source.json",
-        "utf8",
-      ),
-    );
+    const source = legacyFixture();
     source.workspace.documents[0].invalid_column = "bad";
     await assert.rejects(importSqliteExport(source, db));
     for (const table of ["users", "animals", "documents", "audit_events"])

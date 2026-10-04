@@ -2,6 +2,8 @@
 
 La Raspberry héberge désormais le site, l’intranet et l’unique base PostgreSQL du projet. Le PC peut être éteint : les sites restent disponibles sur le réseau domestique.
 
+Le code est réuni dans **un seul dépôt Git**, avec les historiques des deux applications conservés. Le [guide de développement](CONTRIBUTING.md) décrit l’organisation, les tests isolés et la procédure de modification. Les données et secrets ne font pas partie du dépôt.
+
 - **Notre espace privé : http://192.168.1.153:4174**
 - **Le site public : http://192.168.1.153:4173**
 - Adresse locale complémentaire vérifiée : http://raspberry.local:4174

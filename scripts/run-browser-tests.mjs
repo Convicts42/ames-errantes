@@ -1,24 +1,16 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { join, resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
+import { root, docker } from "./lib/environment.mjs";
+import { qaComposeArgs } from "./lib/qa.mjs";
 const run = promisify(execFile);
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const docker =
-  process.platform === "win32"
-    ? join(
-        process.env.LOCALAPPDATA,
-        "Programs/DockerDesktop/resources/bin/docker.exe",
-      )
-    : "docker";
 const invoke = (args) =>
   run(docker, args, {
     cwd: root,
     windowsHide: true,
     maxBuffer: 4 * 1024 * 1024,
   });
-const compose = (args) =>
-  invoke(["compose", "--project-directory", root, ...args]);
+const compose = (args) => invoke(qaComposeArgs(args));
 let database;
 const containers = [];
 try {
@@ -33,12 +25,11 @@ try {
         `Le conteneur ${name} existe déjà. Vérifier son origine avant un nouvel essai.`,
       );
   }
+  await compose(["up", "-d", "--wait", "db"]);
   const fixture = await compose([
     "run",
     "--rm",
     "--no-deps",
-    "-v",
-    `${join(root, "data/migration").replaceAll("\\", "/")}:/migration:ro`,
     "espace",
     "node",
     "/app/tests/ui-fixture.mjs",

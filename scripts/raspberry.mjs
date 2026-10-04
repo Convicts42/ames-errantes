@@ -1,9 +1,7 @@
 import { spawn } from "node:child_process";
 import { readFile, mkdir, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { join, resolve, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+import { join } from "node:path";
+import { root, docker } from "./lib/environment.mjs";
 const target = JSON.parse(
   await readFile(join(root, "deploy/raspberry/target.json"), "utf8"),
 );
@@ -12,13 +10,6 @@ if (
   target.root !== "/opt/ames-errantes"
 )
   throw Error("Cible SSH invalide");
-const docker =
-  process.platform === "win32"
-    ? join(
-        process.env.LOCALAPPDATA,
-        "Programs/DockerDesktop/resources/bin/docker.exe",
-      )
-    : "docker";
 async function run(command, args, { capture = false } = {}) {
   return new Promise((ok, fail) => {
     const p = spawn(command, args, {
@@ -67,9 +58,22 @@ else if (action === "logs") {
     `Sauvegarde Raspberry copiee sur le PC : ${join(folder, match[1])}`,
   );
 } else if (action === "deploy") {
+  // Release sources must have a traceable, committed state.
+  const revision = await run("git", ["rev-parse", "HEAD"], { capture: true });
+  const requireCleanTree = async () => {
+    const status = await run("git", ["status", "--porcelain"], {
+      capture: true,
+    });
+    const current = await run("git", ["rev-parse", "HEAD"], { capture: true });
+    if (status || current !== revision)
+      throw Error(
+        "Le code a des modifications non enregistrées ou a changé pendant la préparation. Faire un commit puis relancer le déploiement.",
+      );
+  };
+  await requireCleanTree();
   // QA never writes into the Raspberry database or the archived local business database.
-  await run(docker, ["compose", "build", "site"]);
-  await run(docker, ["compose", "up", "-d", "--wait", "db"]);
+  await run(process.execPath, ["scripts/check.mjs"]);
+  await run(process.execPath, ["scripts/qa.mjs", "build"]);
   await run(process.execPath, ["scripts/platform-cli.mjs", "test"]);
   await run(process.execPath, ["scripts/run-browser-tests.mjs"]);
   const release = new Date()
@@ -88,42 +92,30 @@ else if (action === "logs") {
     "--platform",
     "linux/arm64",
     "--load",
+    "--label",
+    `org.opencontainers.image.revision=${revision}`,
     "--tag",
     image,
     ".",
   ]);
   await run(docker, ["image", "save", "--output", imageFile, image]);
-  await run("tar", [
-    "-czf",
+  await requireCleanTree();
+  await run("git", [
+    "archive",
+    "--format=tar.gz",
+    "--output",
     archive,
-    "--exclude=node_modules",
-    "--exclude=.next",
-    "--exclude=.git",
-    "--exclude=.env*",
-    "--exclude=test-results",
-    "--exclude=ame-errante/data",
-    "--exclude=ames-errantes-interne/data",
-    "Dockerfile",
-    "compose.yaml",
-    "Platform.ps1",
-    "Demarrer.cmd",
-    "Arreter.cmd",
-    "Sauvegarder.cmd",
-    "VALIDATION.md",
-    "package.json",
-    "pnpm-lock.yaml",
-    "pnpm-workspace.yaml",
-    ".dockerignore",
-    "ame-errante",
-    "ames-errantes-interne",
-    "packages",
-    "services",
-    "scripts",
-    "tests",
-    "deploy",
-    "README.md",
-    "AGENTS.md",
+    revision,
   ]);
+  await writeFile(
+    join(folder, "release.json"),
+    JSON.stringify(
+      { release, revision, image, createdAt: new Date().toISOString() },
+      null,
+      2,
+    ) + "\n",
+    { flag: "wx" },
+  );
   await writeFile(join(folder, "release.env"), `APP_IMAGE=${image}\n`, {
     flag: "wx",
   });
@@ -134,6 +126,7 @@ else if (action === "logs") {
     "BatchMode=yes",
     archive,
     join(folder, "release.env"),
+    join(folder, "release.json"),
     imageFile,
     `${target.ssh}:${remote}/`,
   ]);

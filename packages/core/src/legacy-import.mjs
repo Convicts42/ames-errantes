@@ -12,7 +12,6 @@ const tables = [
   "revisions",
   "tasks",
 ];
-const jsonColumns = new Set(["content", "payload"]);
 export async function importSqliteExport(source, db = getDatabase()) {
   if (source.format !== "ames-sqlite-migration-v1")
     throw new Error("Format de migration inconnu.");

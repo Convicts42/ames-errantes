@@ -8,7 +8,8 @@
 - Ne pas utiliser les anciens fichiers SQLite ou les anciennes Pages comme source courante. Ne pas inscrire de contenu métier dans le code pour contourner la base.
 - Ne pas transmettre de messages à des tiers sans demande de l'utilisateur. Les outils MCP de suivi n'envoient aucun message.
 - Modifications de code : lire aussi les instructions du sous-projet ; conserver les règles métier dans `packages/core`, les versions optimistes et l'historique.
-- Vérification : construire les deux applications avec Compose et utiliser les bases temporaires de `tests`. Ne pas injecter de données QA dans la base du projet.
+- Dépôt unique à la racine : ne pas recréer de `.git` dans les sous-projets. Lire `CONTRIBUTING.md` avant de modifier l’organisation ou les commandes.
+- Vérification : `pnpm check`, `pnpm format:check`, `pnpm qa:build`, `pnpm test`, `pnpm test:browser`. Utiliser exclusivement `compose.qa.yaml` et ses données fictives ; ne pas injecter de données QA dans la base du projet.
 - Ne jamais supprimer les volumes Docker ou écraser une base active pour résoudre un problème. Les secrets et exports privés restent hors des dépôts et de l'image Docker.
 
 ## Deploiement Raspberry actif
@@ -16,6 +17,6 @@
 - La source métier active est PostgreSQL sur 192.168.1.153. Le MCP ames-errantes passe par SSH (convicts) vers /opt/ames-errantes/current/deploy/raspberry/amesctl.sh mcp. Sous Windows, OpenSSH exige PROGRAMDATA dans l'environnement du transport.
 - Le code de reference reste D:\site ; les releases sur la Raspberry sont des instantanes deployes, pas des copies a modifier manuellement. Lire README.md pour les operations.
 - Pour deployer le code : node scripts/raspberry.mjs deploy. Cette procedure teste dans des bases QA, construit ARM64, sauvegarde la cible et controle le demarrage. Ne pas publier de contenu metier pendant un deploiement.
-- Les commandes start/stop/backup passent maintenant par la Raspberry. Ne pas executer docker compose up sur les applications locales : cette ancienne base est une archive. Les tests peuvent demarrer le service db local et creer des bases temporaires, sans modifier ses donnees metier.
+- Les commandes start/stop/backup passent maintenant par la Raspberry. Ne pas executer docker compose up sur les applications locales : cette ancienne base est une archive. La QA dispose de son propre projet Docker `ames-errantes-qa`, réseau, volume et secret ; ne pas utiliser le Compose historique pour les tests.
 - Ne jamais importer a nouveau la sauvegarde initiale sur la base active. import-once.sh refuse une base non vide. Les migrations futures passent par le service migrate.
 - Pour sauvegarder hors de la carte SD : node scripts/raspberry.mjs backup. Conserver les reserves du rapport VALIDATION.md (DHCP, cgroups memoire, test de redemarrage).
