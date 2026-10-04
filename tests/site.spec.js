@@ -72,6 +72,7 @@ test("meeting validates every step, preserves answers and prepares an editable m
   await page.locator("#meeting-next").click();
   await expect(page.locator("#meeting-status")).toHaveText("Étape 1 sur 3");
   await page.locator("#meet-name").fill("Camille");
+  await page.locator("#meet-email").fill("meeting-ui@example.test");
   await page.locator("#meet-home").selectOption("Maison");
   await page.locator("#meet-household").selectOption("Plusieurs adultes");
   await page.locator("#meeting-next").click();
@@ -134,11 +135,13 @@ test("contact preselection, validation and clipboard fallback", async ({
     .click();
   await expect(page.locator("#subject")).toHaveValue("Devenir bénévole");
   await page.locator("#name").fill("Camille");
+  await page.locator("#email").fill("contact-ui@example.test");
+  await page.locator('input[name="consent"]').check();
   await page.locator("#message").fill("   ");
-  await page.getByRole("button", { name: "Préparer mon message" }).click();
+  await page.getByRole("button", { name: "Envoyer mon message" }).click();
   await expect(page.locator("#message-result")).toBeHidden();
   await page.locator("#message").fill("Je souhaite vous aider.");
-  await page.getByRole("button", { name: "Préparer mon message" }).click();
+  await page.getByRole("button", { name: "Envoyer mon message" }).click();
   await expect(page.locator("#prepared-message")).toHaveValue(
     /Devenir bénévole[\s\S]*Je souhaite vous aider.[\s\S]*Camille/,
   );

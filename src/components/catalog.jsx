@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { companions } from "../data/companions";
+import { animalStatuses } from "../data/form-options";
 
 const filters = [
   ["tous", "Tous les compagnons"],
@@ -10,9 +10,9 @@ const filters = [
   ["chat", "Les chats"],
 ];
 
-export function Catalog() {
+export function Catalog({ animals }) {
   const [filter, setFilter] = useState("tous");
-  const entries = Object.entries(companions);
+  const entries = animals.map((animal) => [animal.slug, animal]);
   const count = entries.filter(
     ([, animal]) => filter === "tous" || filter === animal.type.toLowerCase(),
   ).length;
@@ -52,16 +52,20 @@ export function Catalog() {
             <Link
               className="animal-image"
               href={`/${slug}`}
-              aria-label={`Découvrir ${animal.name}, fiche d’exemple`}
+              aria-label={`Découvrir ${animal.name}${animal.demo ? ", fiche d’exemple" : ""}`}
             >
               <img
-                src={`/assets/${animal.image}-portrait.webp`}
+                src={animal.image}
                 alt={animal.alt}
                 width={1536}
                 height={1024}
                 loading="lazy"
               />
-              <span className="badge">Portrait illustratif</span>
+              <span className="badge">
+                {animal.demo
+                  ? "Portrait illustratif"
+                  : animalStatuses[animal.status]}
+              </span>
               <span className="photo-name" aria-hidden="true">
                 {animal.name}
               </span>
@@ -84,10 +88,17 @@ export function Catalog() {
           </article>
         ))}
       </div>
-      <p className="sample-note">
-        Soleil et Plume sont des personnages de démonstration. Leurs portraits
-        sont générés ; ces fiches ne sont pas des annonces d’adoption réelles.
-      </p>
+      {count === 0 && (
+        <p role="status">
+          Aucun compagnon ne correspond à ce filtre pour le moment.
+        </p>
+      )}
+      {animals.some((animal) => animal.demo) && (
+        <p className="sample-note">
+          Les fiches signalées comme exemples utilisent des portraits générés et
+          ne sont pas des annonces d’adoption réelles.
+        </p>
+      )}
     </section>
   );
 }

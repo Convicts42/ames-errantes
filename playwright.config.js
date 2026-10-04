@@ -1,25 +1,23 @@
 import { defineConfig } from "@playwright/test";
 
-const externalURL = process.env.PLAYWRIGHT_BASE_URL;
+// These tests submit data: always use the isolated database in test-server.mjs.
 
 export default defineConfig({
   testDir: "./tests",
+  testMatch: "**/*.spec.js",
   fullyParallel: false,
   workers: 1,
   reporter: "list",
   use: {
-    baseURL: externalURL || "http://127.0.0.1:4183",
+    baseURL: "http://127.0.0.1:4183",
     channel: process.env.PLAYWRIGHT_CHANNEL || "chrome",
     viewport: { width: 1440, height: 1000 },
     trace: "retain-on-failure",
   },
-  webServer: externalURL
-    ? undefined
-    : {
-        command:
-          "node node_modules/next/dist/bin/next start --hostname 127.0.0.1 --port 4183",
-        url: "http://127.0.0.1:4183",
-        reuseExistingServer: false,
-        timeout: 30000,
-      },
+  webServer: {
+    command: "node scripts/test-server.mjs",
+    url: "http://127.0.0.1:4183",
+    reuseExistingServer: false,
+    timeout: 30000,
+  },
 });

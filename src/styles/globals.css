@@ -59,6 +59,35 @@
   --hand: "Caveat", cursive;
   --body: "DM Sans", Arial, sans-serif;
 }
+.plain-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.contact-form .consent,
+.meeting-form .consent {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+}
+.consent input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.form-error {
+  color: #923c29;
+  padding: 12px 0;
+}
+button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+}
 * {
   box-sizing: border-box;
 }

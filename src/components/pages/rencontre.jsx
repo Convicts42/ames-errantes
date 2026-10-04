@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { MeetingForm } from "../meeting-form";
+import { listAnimals } from "../../server/repository.mjs";
 
 export default function PageContent() {
   return (
@@ -21,7 +22,7 @@ export default function PageContent() {
         </p>
       </div>
 
-      <MeetingForm />
+      <MeetingForm animals={listAnimals({ available: true })} />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Catalog } from "../catalog";
+import { listAnimals } from "../../server/repository.mjs";
 
 export default function PageContent() {
   return (
@@ -22,7 +23,7 @@ export default function PageContent() {
           }
         </p>
       </div>
-      <Catalog />
+      <Catalog animals={listAnimals()} />
       <aside className="closing-cta shell" data-reveal="">
         <div>
           <h2>{"Le coup de cœur, et après ?"}</h2>

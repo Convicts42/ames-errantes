@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
-import { companions } from "../data/companions";
+import { api, submissionKey } from "./api-client";
 import { QueryPreset } from "./query-preset";
 import { copyMessage } from "./copy-message";
 
@@ -23,7 +23,7 @@ function SelectField({ name, label, options }) {
   );
 }
 
-export function MeetingForm() {
+export function MeetingForm({ animals }) {
   const form = useRef(null);
   const prepared = useRef(null);
   const focusOnChange = useRef(false);
@@ -32,12 +32,16 @@ export function MeetingForm() {
   const [result, setResult] = useState(false);
   const [message, setMessage] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
-  const companion = Object.hasOwn(companions, animal)
-    ? companions[animal]
-    : null;
+  const [pending, setPending] = useState(false);
+  const [sent, setSent] = useState(null);
+  const [error, setError] = useState("");
+  const [consent, setConsent] = useState(false);
+  const attempt = useRef(null);
+  const companion = animals.find((item) => item.slug === animal) || null;
   const preset = useCallback(
-    (value) => setAnimal(Object.hasOwn(companions, value) ? value : ""),
-    [],
+    (value) =>
+      setAnimal(animals.some((item) => item.slug === value) ? value : ""),
+    [animals],
   );
 
   useEffect(() => {
@@ -54,6 +58,7 @@ export function MeetingForm() {
     setStep(index);
     setResult(false);
     setCopyStatus("");
+    setError("");
   }
 
   function validate(index) {
@@ -89,11 +94,40 @@ export function MeetingForm() {
     const name = data.get("name").trim();
     const copy = data.get("message").trim();
     setMessage(
-      `Objet : Projet de rencontre avec ${companion.name}\n\nBonjour,\n\nJe m’appelle ${name} et je souhaite échanger sur une rencontre avec ${companion.name}.\n\nMon quotidien\n• Logement : ${data.get("home")}\n• Foyer : ${data.get("household")}\n• Présence : ${data.get("presence")}\n• Animaux à la maison : ${data.get("pets")}\n• Période envisagée : ${data.get("time")}\n\n${copy ? copy + "\n\n" : ""}Merci pour votre retour,\n${name}\n\n[Essai du site : profil fictif, message non envoyé.]`,
+      `Objet : Projet de rencontre avec ${companion.name}\n\nBonjour,\n\nJe m’appelle ${name} et je souhaite échanger sur une rencontre avec ${companion.name}.\n\nMon quotidien\n• Logement : ${data.get("home")}\n• Foyer : ${data.get("household")}\n• Présence : ${data.get("presence")}\n• Animaux à la maison : ${data.get("pets")}\n• Période envisagée : ${data.get("time")}\n\n${copy ? copy + "\n\n" : ""}Merci pour votre retour,\n${name}${companion.demo ? "\n\n[Essai : profil fictif.]" : ""}`,
     );
     focusOnChange.current = true;
     setResult(true);
     setCopyStatus("");
+  }
+
+  async function send() {
+    if (pending || sent) return;
+    if (!consent) {
+      setError("Veuillez accepter l’enregistrement de votre demande.");
+      return;
+    }
+    const data = Object.fromEntries(new FormData(form.current));
+    const payload = { ...data, kind: "meeting", consent, summary: message };
+    const serialized = JSON.stringify(payload);
+    if (attempt.current?.serialized !== serialized)
+      attempt.current = { serialized, key: submissionKey() };
+    setPending(true);
+    setError("");
+    try {
+      const response = await api("/api/requests", {
+        method: "POST",
+        data: payload,
+        key: attempt.current.key,
+      });
+      setSent(response.id);
+    } catch (error) {
+      setError(
+        error.message || "Connexion impossible. Vos réponses sont conservées.",
+      );
+    } finally {
+      setPending(false);
+    }
   }
 
   return (
@@ -105,7 +139,7 @@ export function MeetingForm() {
         <div className="meeting-photo" id="meeting-photo" hidden={!companion}>
           <img
             id="meeting-image"
-            src={`/assets/${companion?.image || "dog"}-portrait.webp`}
+            src={companion?.image || "/assets/dog-portrait.webp"}
             alt={
               companion
                 ? `Portrait illustratif de ${companion.name}, ${companion.type.toLowerCase()}`
@@ -135,8 +169,9 @@ export function MeetingForm() {
             <use href="#heart" />
           </svg>
           <p>
-            Les profils sont fictifs. Ce parcours prépare un message à copier,
-            sans envoi ni stockage.
+            {companion?.demo
+              ? "Ce profil est fictif. Votre demande sera enregistrée comme un essai."
+              : "Votre demande sera enregistrée pour que l’équipe puisse vous répondre. Elle ne réserve pas un animal."}
           </p>
         </div>
       </aside>
@@ -165,6 +200,16 @@ export function MeetingForm() {
         <fieldset data-meeting-step="0" hidden={result || step !== 0}>
           <legend tabIndex={-1}>Commençons par vous.</legend>
           <p className="field-intro">Les premiers repères de votre projet.</p>
+          {!animals.length && (
+            <p className="notice">
+              Aucun compagnon n’est actuellement disponible pour une demande.
+              Vous pouvez{" "}
+              <Link href="/contact" className="text-link">
+                nous contacter
+              </Link>
+              .
+            </p>
+          )}
           <label htmlFor="meet-animal">
             Le compagnon qui vous intéresse
             <select
@@ -175,8 +220,11 @@ export function MeetingForm() {
               onChange={(event) => setAnimal(event.target.value)}
             >
               <option value="">Choisir un compagnon</option>
-              <option value="soleil">Soleil · Chien</option>
-              <option value="plume">Plume · Chat</option>
+              {animals.map((item) => (
+                <option key={item.slug} value={item.slug}>
+                  {item.name} · {item.type}
+                </option>
+              ))}
             </select>
           </label>
           <label htmlFor="meet-name">
@@ -189,6 +237,18 @@ export function MeetingForm() {
               required
               placeholder="Votre prénom"
               onInput={(event) => event.currentTarget.setCustomValidity("")}
+            />
+          </label>
+          <label htmlFor="meet-email">
+            Votre adresse e-mail
+            <input
+              id="meet-email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              required
+              maxLength={254}
+              placeholder="Pour vous répondre"
             />
           </label>
           <div className="form-row">
@@ -269,9 +329,9 @@ export function MeetingForm() {
             <span className="eyebrow">ET ENSUITE ?</span>
             <h3>Un échange, puis une rencontre.</h3>
             <p>
-              Sur le site final, l’association pourra échanger avec vous et
-              convenir d’une rencontre selon les besoins de l’animal. Ici, votre
-              récapitulatif reste à copier.
+              Relisez le récapitulatif avant de l’envoyer. L’équipe pourra
+              ensuite consulter votre demande et vous répondre. Aucun e-mail
+              automatique n’est envoyé.
             </p>
           </div>
         </fieldset>
@@ -324,8 +384,9 @@ export function MeetingForm() {
             <em>peut commencer.</em>
           </h2>
           <p>
-            Voici votre message à copier. Il n’a pas été envoyé ; aucune
-            rencontre n’est réservée.
+            {sent
+              ? `Votre demande a bien été enregistrée. Référence : ${sent}`
+              : "Relisez votre message, puis confirmez son envoi. Aucune rencontre n’est réservée."}
           </p>
           <label htmlFor="meeting-prepared">
             Votre récapitulatif
@@ -333,11 +394,46 @@ export function MeetingForm() {
               ref={prepared}
               id="meeting-prepared"
               rows={12}
+              maxLength={8000}
+              readOnly={pending || !!sent}
               value={message}
               onChange={(event) => setMessage(event.target.value)}
             />
           </label>
+          {!sent && (
+            <label className="consent">
+              <input
+                type="checkbox"
+                checked={consent}
+                disabled={pending}
+                onChange={(event) => setConsent(event.target.checked)}
+              />
+              J’accepte l’enregistrement de mes coordonnées et de mes réponses
+              pour le traitement de cette demande par l’équipe.
+            </label>
+          )}
+          {error && (
+            <p role="alert" className="form-error">
+              {error}
+            </p>
+          )}
+          {sent && (
+            <p role="status">
+              Demande enregistrée. Vous pouvez conserver une copie ci-dessous.
+            </p>
+          )}
           <div className="meeting-result-actions">
+            {!sent && (
+              <button
+                type="button"
+                id="meeting-send"
+                className="button"
+                disabled={pending}
+                onClick={send}
+              >
+                {pending ? "Enregistrement…" : "Envoyer ma demande"}
+              </button>
+            )}
             <button
               type="button"
               id="meeting-copy"
@@ -349,6 +445,8 @@ export function MeetingForm() {
             <button
               type="button"
               id="meeting-edit"
+              hidden={!!sent}
+              disabled={pending}
               className="text-link"
               onClick={() => showStep(0)}
             >

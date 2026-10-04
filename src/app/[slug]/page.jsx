@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
-import { pages, getPage } from "../../data/pages";
+import { connection } from "next/server";
+import { getPage } from "../../data/pages";
+import { getAnimal } from "../../server/repository.mjs";
+import { AnimalProfile } from "../../components/animal-profile";
 import { PageFrame } from "../../components/page-frame";
 import Association from "../../components/pages/association";
 import Animaux from "../../components/pages/animaux";
@@ -7,8 +10,6 @@ import Adopter from "../../components/pages/adopter";
 import NousAider from "../../components/pages/nous-aider";
 import Blog from "../../components/pages/blog";
 import Contact from "../../components/pages/contact";
-import Soleil from "../../components/pages/soleil";
-import Plume from "../../components/pages/plume";
 import Rencontre from "../../components/pages/rencontre";
 import NouveauFoyer from "../../components/pages/nouveau-foyer";
 import AvantAdoption from "../../components/pages/avant-adoption";
@@ -20,29 +21,45 @@ const contents = {
   "nous-aider": NousAider,
   blog: Blog,
   contact: Contact,
-  soleil: Soleil,
-  plume: Plume,
   rencontre: Rencontre,
   "nouveau-foyer": NouveauFoyer,
   "avant-adoption": AvantAdoption,
 };
 
-export function generateStaticParams() {
-  return pages
-    .filter((page) => page.slug !== "index")
-    .map(({ slug }) => ({ slug }));
+function profilePage(animal) {
+  return {
+    slug: animal.slug,
+    label: animal.name,
+    nav: "animaux",
+    parent: ["animaux", "Nos animaux"],
+    title: `Faire connaissance avec ${animal.name}`,
+    description: animal.description,
+  };
 }
 
 export async function generateMetadata({ params }) {
+  await connection();
   const { slug } = await params;
-  const page = getPage(slug);
-  if (!page || !Object.hasOwn(contents, slug)) notFound();
+  const animal = Object.hasOwn(contents, slug) ? null : getAnimal(slug);
+  const page = Object.hasOwn(contents, slug)
+    ? getPage(slug)
+    : animal && profilePage(animal);
+  if (!page) notFound();
   return { title: page.title, description: page.description };
 }
 
 export default async function ContentPage({ params }) {
+  await connection();
   const { slug } = await params;
-  if (!Object.hasOwn(contents, slug)) notFound();
+  if (!Object.hasOwn(contents, slug)) {
+    const animal = getAnimal(slug);
+    if (!animal) notFound();
+    return (
+      <PageFrame key={slug} page={profilePage(animal)}>
+        <AnimalProfile animal={animal} />
+      </PageFrame>
+    );
+  }
   const Content = contents[slug];
   return (
     <PageFrame key={slug} page={getPage(slug)}>

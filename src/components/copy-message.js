@@ -1,7 +1,7 @@
 export async function copyMessage(field, setStatus) {
   try {
     await navigator.clipboard.writeText(field.value);
-    setStatus("Message copié. Aucun envoi n’a été effectué.");
+    setStatus("Message copié.");
   } catch {
     field.focus();
     field.select();
