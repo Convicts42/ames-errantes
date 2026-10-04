@@ -2,8 +2,10 @@ import { resolve } from "node:path";
 
 export default {
   poweredByHeader: false,
-  serverExternalPackages: ["sanitize-html"],
-  turbopack: { root: resolve(".") },
+  transpilePackages: ["@ames/core"],
+  serverExternalPackages: ["pg", "sharp", "sanitize-html"],
+
+  turbopack: { root: resolve("..") },
   async headers() {
     return [
       {

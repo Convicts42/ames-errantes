@@ -5,6 +5,7 @@ import { api, dateLabel, timeLabel } from "./api";
 import { Icon } from "./icons";
 import { Dialog } from "./dialog";
 import { DocumentEditor } from "./editor";
+import { Publication } from "./publication";
 
 export function Status({ value }) {
   return (
@@ -130,7 +131,15 @@ export function CreateDocument({ category, onClose, onCreated }) {
     </Dialog>
   );
 }
-export function DocumentView({ id, user, onChanged, onDirty, navigate }) {
+export function DocumentView({
+  id,
+  user,
+  onChanged,
+  onDirty,
+  navigate,
+  latestVersion,
+}) {
+  const [publishing, setPublishing] = useState(false);
   const [doc, setDoc] = useState(null),
     [form, setForm] = useState(null),
     [editing, setEditing] = useState(false),
@@ -141,6 +150,31 @@ export function DocumentView({ id, user, onChanged, onDirty, navigate }) {
     [history, setHistory] = useState(null),
     [preview, setPreview] = useState(null);
   const draftKey = `ames-draft:${user.id}:${id}`;
+  useEffect(() => {
+    if (
+      !doc ||
+      editing ||
+      dirty ||
+      !latestVersion ||
+      latestVersion === doc.version
+    )
+      return;
+    let active = true;
+    api(`documents/${id}`)
+      .then(({ document: d }) => {
+        if (active) {
+          setDoc(d);
+          setForm(d);
+          setNotice(
+            "Le document a été actualisé avec les dernières modifications.",
+          );
+        }
+      })
+      .catch((e) => active && setError(e.message));
+    return () => {
+      active = false;
+    };
+  }, [id, latestVersion, doc?.version, editing, dirty]);
   useEffect(() => {
     let alive = true;
     setDoc(null);
@@ -285,6 +319,10 @@ export function DocumentView({ id, user, onChanged, onDirty, navigate }) {
         <div className="document-actions">
           {!editing && (
             <>
+              <button className="button" onClick={() => setPublishing(true)}>
+                <Icon name="external" size={17} />
+                Publication
+              </button>
               <button className="button" onClick={showHistory}>
                 <Icon name="history" size={17} />
                 Historique
@@ -426,6 +464,9 @@ export function DocumentView({ id, user, onChanged, onDirty, navigate }) {
           « Document de référence » décrit l’usage du document, pas une
           validation juridique ou financière.
         </p>
+      )}
+      {publishing && (
+        <Publication doc={doc} onClose={() => setPublishing(false)} />
       )}
       {history && !preview && (
         <Dialog title="Historique du document" onClose={() => setHistory(null)}>

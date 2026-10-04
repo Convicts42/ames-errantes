@@ -15,6 +15,7 @@ import {
 import { Tasks } from "./tasks";
 import { Account } from "./account";
 import { Dialog } from "./dialog";
+import { Management, Activity } from "./management";
 
 export function Workspace() {
   const [user, setUser] = useState(null),
@@ -72,6 +73,20 @@ export function Workspace() {
   }, []);
   useEffect(() => {
     if (user) refresh();
+  }, [user, refresh]);
+  useEffect(() => {
+    if (!user) return;
+    const timer = setInterval(() => {
+      if (!document.hidden && !dirty.current) refresh();
+    }, 15000);
+    const focus = () => {
+      if (!dirty.current) refresh();
+    };
+    window.addEventListener("focus", focus);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("focus", focus);
+    };
   }, [user, refresh]);
   useEffect(() => {
     function key(e) {
@@ -161,6 +176,13 @@ export function Workspace() {
   const activeCategory = id
     ? data?.documents.find((d) => d.id === id)?.category
     : category;
+  const publicAddress = new URL(data?.siteUrl || "http://localhost:4173");
+  if (
+    typeof window !== "undefined" &&
+    ["localhost", "127.0.0.1"].includes(publicAddress.hostname)
+  )
+    publicAddress.hostname = window.location.hostname;
+  const siteUrl = publicAddress.origin;
   return (
     <div className="workspace">
       <a className="skip-link" href="#main-content">
@@ -230,6 +252,32 @@ export function Workspace() {
             Archives
           </button>
         </nav>
+        <nav aria-label="Site et équipe">
+          <span className="nav-label">LE SITE & L’ÉQUIPE</span>
+          <button
+            className={`nav-item ${pathname === "/gestion" ? "active" : ""}`}
+            onClick={() => navigate("/gestion")}
+          >
+            <Icon name="paw" />
+            Animaux & demandes
+          </button>
+          <button
+            className={`nav-item ${pathname === "/activite" ? "active" : ""}`}
+            onClick={() => navigate("/activite")}
+          >
+            <Icon name="history" />
+            Activité & Codex
+          </button>
+          <a
+            className="nav-item"
+            href={siteUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Icon name="external" />
+            Voir le site public
+          </a>
+        </nav>
         <div className="sidebar-bottom">
           <div className="sidebar-message">
             <Icon name="leaf" size={21} />
@@ -273,8 +321,12 @@ export function Workspace() {
                   ? "Points à suivre"
                   : pathname === "/compte"
                     ? "Mon compte"
-                    : categories.find((c) => c.id === activeCategory)?.label ||
-                      "Dossiers"}
+                    : pathname === "/gestion"
+                      ? "Animaux & demandes"
+                      : pathname === "/activite"
+                        ? "Activité & Codex"
+                        : categories.find((c) => c.id === activeCategory)
+                            ?.label || "Dossiers"}
             </strong>
           </div>
           <div className="topbar-actions">
@@ -335,6 +387,7 @@ export function Workspace() {
               user={user}
               onChanged={refresh}
               onDirty={setDirty}
+              latestVersion={data.documents.find((d) => d.id === id)?.version}
               navigate={navigate}
             />
           ) : pathname === "/dossiers" ? (
@@ -346,6 +399,10 @@ export function Workspace() {
             />
           ) : pathname === "/suivi" ? (
             <Tasks {...data} onChanged={refresh} navigate={navigate} />
+          ) : pathname === "/gestion" ? (
+            <Management user={user} siteUrl={siteUrl} />
+          ) : pathname === "/activite" ? (
+            <Activity />
           ) : pathname === "/compte" ? (
             <Account
               user={user}

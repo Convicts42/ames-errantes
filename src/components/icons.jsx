@@ -1,4 +1,47 @@
-import { Compass, PawPrint, Users, Wallet, House, ShieldCheck, Archive, LayoutDashboard, ListTodo, Search, ArrowUpRight, ArrowLeft, ArrowRight, Plus, ChevronRight, ChevronDown, LogOut, Settings, Menu, X, FileText, Check, Clock, History, Save, Download, ExternalLink, LockKeyhole, Leaf, MoreHorizontal, AlertCircle, Bold, Italic, List, ListOrdered, Heading2, Link as LinkIcon, Table, Undo2, Redo2, Trash2, SquarePen } from "lucide-react";
+import {
+  Compass,
+  PawPrint,
+  Users,
+  Wallet,
+  House,
+  ShieldCheck,
+  Archive,
+  LayoutDashboard,
+  ListTodo,
+  Search,
+  ArrowUpRight,
+  ArrowLeft,
+  ArrowRight,
+  Plus,
+  ChevronRight,
+  ChevronDown,
+  LogOut,
+  Settings,
+  Menu,
+  X,
+  FileText,
+  Check,
+  Clock,
+  History,
+  Save,
+  Download,
+  ExternalLink,
+  LockKeyhole,
+  Leaf,
+  MoreHorizontal,
+  AlertCircle,
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Heading2,
+  Link as LinkIcon,
+  Table,
+  Undo2,
+  Redo2,
+  Trash2,
+  SquarePen,
+} from "lucide-react";
 const icons = {
   compass: Compass,
   paw: PawPrint,
@@ -41,13 +84,11 @@ const icons = {
   undo: Undo2,
   redo: Redo2,
   trash: Trash2,
-  edit: SquarePen
+  edit: SquarePen,
 };
-export function Icon({
-  name,
-  size = 20,
-  ...props
-}) {
+export function Icon({ name, size = 20, ...props }) {
   const Component = icons[name] || FileText;
-  return <Component size={size} strokeWidth={1.7} aria-hidden="true" {...props} />;
+  return (
+    <Component size={size} strokeWidth={1.7} aria-hidden="true" {...props} />
+  );
 }

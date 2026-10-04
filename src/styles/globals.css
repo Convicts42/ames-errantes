@@ -2199,3 +2199,93 @@ svg {
     break-after: avoid;
   }
 }
+
+.sidebar {
+  overflow-y: auto;
+}
+.sidebar nav {
+  flex-shrink: 0;
+}
+.nav-item {
+  text-decoration: none;
+}
+.site-management .button {
+  white-space: normal;
+}
+.site-management .text-link {
+  color: var(--green);
+  text-decoration: underline;
+  font-weight: 600;
+}
+.site-management .button-sage {
+  background: var(--green);
+  color: white;
+}
+.site-management .button-outline {
+  border: 1px solid var(--line);
+}
+.site-management .button-small {
+  padding: 8px 14px;
+}
+.site-management .notice {
+  display: block;
+}
+.site-management .dialog-close {
+  border: 1px solid var(--line);
+  padding: 7px;
+}
+.activity-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+}
+.activity-row strong,
+.activity-row small {
+  display: block;
+}
+.activity-row small {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 5px;
+}
+.activity-heading {
+  margin: 28px 0 15px;
+}
+.connection-help {
+  font-size: 14px;
+  margin-top: 15px;
+}
+.document-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+@media (max-width: 760px) {
+  .document-topline {
+    flex-wrap: wrap;
+  }
+  .document-actions {
+    justify-content: flex-start;
+  }
+  .sidebar-bottom {
+    padding-top: 18px;
+  }
+  .site-management .admin-tabs {
+    flex-wrap: wrap;
+  }
+  .site-management .admin-card {
+    padding: 18px;
+  }
+}
+.site-management .plain-fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.site-management .plain-fieldset h3 {
+  margin: 14px 0;
+}
+.site-management .plain-fieldset p {
+  margin: 12px 0;
+}
