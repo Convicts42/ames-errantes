@@ -1,3 +1,38 @@
+# Organisation Raspberry — 5 octobre 2026
+
+État : **opérationnel pour le responsable technique ; connexion du Mac à terminer ultérieurement**.
+
+## Organisation vérifiée
+
+- Le dépôt Git complet est désormais dans le dossier déjà choisi pour le projet SSH : `/home/convicts/projets/ames-errantes`. Les sources des deux interfaces, le cœur partagé, le MCP et les tests y sont disponibles. L'ancien dossier contenant seulement deux fichiers d'instructions est conservé dans `/home/convicts/archives`.
+- La copie Windows suit le dépôt Raspberry via le remote `raspberry`, avec fusion rapide uniquement. Les historiques originaux et les bundles de secours sont conservés.
+- Node.js 24.21.0, pnpm 11.25.0 et Codex CLI 0.160.0 sont accessibles dans un shell SSH de connexion normal. Le compte technique reste authentifié à ChatGPT.
+- Le compte `ames-documents` possède son propre Codex et un connecteur limité à 9 outils. Il ne peut pas utiliser Docker, consulter les secrets de production, les sauvegardes ou l'authentification du responsable technique, ni lire le dépôt principal. Aucun identifiant ChatGPT du responsable n'a été copié.
+- Le pont appartenant à root impose une entrée documentaire dédiée. La connexion sur l'ancienne image, dépourvue de cette entrée, a réellement été refusée. Le test d'intégration vérifie aussi qu'une variable demandant le profil complet ne change pas les droits documentaires.
+
+## Validation du logiciel
+
+- Contrôle des 234 fichiers et 155 modules, formatage et vérification Git réussis sur la Raspberry.
+- Compilation native ARM64 des deux applications, limitée à un worker et 512 Mo de tas Node.
+- 11/11 tests PostgreSQL et MCP réussis sur données fictives, incluant conflits, audit, historique, permissions, publication explicite et sauvegarde/restauration.
+
+- Parcours Chromium réussis sur la version finale : modifications IA/humaines, conflits, gestion interne, publication/retrait, médias privés, mobile et 18 pages publiques sans erreur JavaScript. Environnement QA arrêté et conteneurs éphémères supprimés à la fin.
+- Version réellement activée : `20261004-222713`, code du commit `0b71b38834ff4ca775b3efbf53884fe9a81a7851`. Préparation, sauvegarde et activation ont été exécutées directement sur la Raspberry.
+- Quatre services permanents sains après activation ; santé publique et intranet HTTP 200 ; anciennes routes publiques d'administration HTTP 404.
+- Les deux transports MCP réels ont été interrogés après déploiement : 18 outils pour le responsable, 9 pour le compte documentaire ; mêmes 15 documents et 5 tâches. Les appels d'administration tentés avec le compte documentaire sont refusés. Aucun contenu de test n'a été écrit en production.
+- Sauvegardes avant et après activation. La copie PC du dump `ames-auto-2026-10-04T22-28-41-771Z.dump` a la même empreinte SHA256 que l'original Raspberry.
+- Dernier contrôle matériel : `get_throttled=0x0`, environ 8,6 Go libres. La restriction des limites mémoire Docker liée au noyau reste celle décrite dans l'historique ; le plafond du tas Node à la compilation est actif.
+
+## À terminer avec le Mac
+
+Le Mac n'était pas disponible ; la configuration a été volontairement reportée à la demande de l'utilisateur. Sa clé publique n'a pas encore été ajoutée et son compte ChatGPT n'est pas encore authentifié sur la Raspberry. La disponibilité des connexions SSH sur son compte Go reste à vérifier dans l'application. Le [guide Mac](ACCES-MAC.md) décrit ces étapes.
+
+L'accès reste limité au réseau domestique. Les builds natifs prennent plusieurs minutes sur cette Raspberry 2 Go et sa carte mémoire ; surveiller l'espace disponible avec `pnpm status`. Le redémarrage complet de l'OS n'a pas été testé pendant cette intervention.
+
+---
+
+# Historique des interventions précédentes
+
 # Nettoyage du dépôt — 4 octobre 2026
 
 État : **vérifié localement, non déployé**. Aucun accès à la Raspberry pendant le remplacement de son alimentation. Les résultats distants ci-dessous décrivent la vérification précédente, pas son état pendant cette maintenance.
