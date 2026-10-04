@@ -1,0 +1,30 @@
+{
+  "name": "ame-errante",
+  "version": "3.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 4173",
+    "dev:lan": "next dev --hostname 0.0.0.0 --port 4173",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 --port 4173",
+    "start:lan": "next start --hostname 0.0.0.0 --port 4173",
+    "check": "node scripts/check.mjs",
+    "test": "playwright test"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "next": "16.3.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "parse5": "8.0.1",
+    "prettier": "3.9.9"
+  }
+}
