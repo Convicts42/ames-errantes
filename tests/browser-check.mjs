@@ -1,4 +1,5 @@
-import { chromium, expect } from "@playwright/test";
+import { openBrowser } from "./browser-helper.mjs";
+import { expect } from "@playwright/test";
 import assert from "node:assert/strict";
 import { mkdir, writeFile } from "node:fs/promises";
 import { execFile } from "node:child_process";
@@ -8,12 +9,7 @@ import { randomUUID } from "node:crypto";
 const execute = promisify(execFile);
 const internal = "http://localhost:4474",
   publicSite = "http://localhost:4473";
-const browser = await chromium.launch({
-  channel:
-    process.env.PLAYWRIGHT_CHANNEL ||
-    (process.platform === "win32" ? "chrome" : undefined),
-  headless: true,
-});
+const browser = await openBrowser();
 const context = await browser.newContext({
   viewport: { width: 1440, height: 1000 },
 });

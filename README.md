@@ -1,71 +1,43 @@
-# Âmes errantes — notre plateforme
+# Âmes errantes — un projet commun
 
-La Raspberry héberge désormais le site, l’intranet et l’unique base PostgreSQL du projet. Le PC peut être éteint : les sites restent disponibles sur le réseau domestique.
+Le point de travail principal est maintenant le **projet SSH sur la Raspberry**. Le code, son historique Git, les sites et la base documentaire y sont réunis. Le PC garde une copie de secours du code.
 
-Le code est réuni dans **un seul dépôt Git**, avec les historiques des deux applications conservés. Le [guide de développement](CONTRIBUTING.md) décrit l’organisation, les tests isolés et la procédure de modification. Les données et secrets ne font pas partie du dépôt.
+## Où travailler
 
-- **Notre espace privé : http://192.168.1.153:4174**
-- **Le site public : http://192.168.1.153:4173**
-- Adresse locale complémentaire vérifiée : http://raspberry.local:4174
-- Les identifiants existants sont conservés. Toute la gestion est dans l’intranet ; l’ancien `/admin` public est supprimé.
+| Personne                               | Dossier du projet ChatGPT sur la Raspberry   | Accès                                                         |
+| -------------------------------------- | -------------------------------------------- | ------------------------------------------------------------- |
+| Responsable technique (`convicts`)     | `/home/convicts/projets/ames-errantes`       | Code des sites, documents et administration via MCP           |
+| Équipe documentaire (`ames-documents`) | `/home/ames-documents/projets/ames-errantes` | Documents, historique et points à suivre via un MCP restreint |
 
-## Au quotidien
+Chaque personne utilise son propre compte ChatGPT et sa propre clé SSH. Les conversations sont personnelles ; les documents enregistrés sont communs. Le compte documentaire n'est membre ni de Docker ni de sudo et ne peut utiliser qu'une commande serveur autorisée donnant accès aux outils documentaires. Sa première connexion nécessite encore sa clé publique et son authentification ChatGPT personnelle.
 
-Ouvrir l’intranet dans le navigateur. « Animaux & demandes » regroupe le catalogue, les photos, les demandes, les réglages et les sauvegardes. « Mon compte & l’équipe » permet de gérer les comptes et les mots de passe.
+Dans ChatGPT, sélectionner la connexion SSH puis le dossier indiqué. Ouvrir une nouvelle conversation après un changement de configuration pour charger les instructions et outils. La disponibilité des fonctions SSH/MCP doit être vérifiée sur le compte ChatGPT de chaque personne ; l'abonnement à lui seul ne configure pas cet accès.
 
-Les documents restent privés. Leur publication demande une action explicite ; elle porte sur une version précise. Les animaux et réglages publics enregistrés dans l’intranet alimentent directement le site.
+## Documents et sites
 
-La Raspberry doit rester alimentée et connectée au réseau. Aucun accès par Internet n’est installé. L’adresse 192.168.1.153 doit être réservée à la Raspberry dans le DHCP de la box ; ce réglage de la box reste à effectuer ou à confirmer.
+- [Intranet](http://192.168.1.153:4174/) : dossiers, tâches, animaux et administration.
+- [Site public](http://192.168.1.153:4173/) : contenus destinés aux visiteurs.
+- Dossiers : une seule source, PostgreSQL sur la Raspberry. Le MCP lit et modifie cette base avec versions et historique. Aucun retour à Spaces ni aux anciens SQLite.
+- Une modification documentaire enregistrée par l'IA apparaît dans l'intranet. Les documents restent privés tant qu'une publication n'est pas explicitement demandée et effectuée par un accès autorisé.
 
-Les raccourcis du dossier pilotent désormais la Raspberry :
+Exemples : « Relis le dossier d'accueil », « Enregistre cette décision », « Améliore la navigation de l'intranet et teste-la avant de mettre à jour les sites ».
 
-- `Demarrer.cmd` démarre les services distants si nécessaire.
-- `Arreter.cmd` arrête les services distants, sans effacer les données.
-- `Sauvegarder.cmd` crée une sauvegarde sur la Raspberry et la copie dans `data/backups-raspberry` sur le PC.
+## Faire évoluer le logiciel
 
-## Travailler avec Codex
+Le dépôt de travail et les sites en service sont deux emplacements distincts sur **la même Raspberry**. Les changements de code n'affectent donc pas immédiatement les sites utilisés.
 
-Continuer dans ce projet avec une demande normale : « Relis le dossier d’accueil et ajoute les questions manquantes aux points à suivre. »
+1. Modifier le code dans le projet SSH et faire un commit Git.
+2. `pnpm deploy:prepare` : contrôles, construction ARM64, tests PostgreSQL/MCP et navigateur sur des données fictives, puis préparation d'une version liée au commit.
+3. `pnpm deploy:activate` : sauvegarde de la base active et mise en service de cette version avec contrôle de santé.
 
-Le serveur MCP `ames-errantes` utilise votre clé SSH pour agir directement sur la Raspberry. Ses 18 outils lisent et modifient les dossiers, tâches, animaux, demandes, réglages et publications. Ils conservent les versions et le journal « IA · Codex », et refusent une modification basée sur une version périmée. Les textes des dossiers sont des données, jamais des instructions pour l’agent.
+`pnpm deploy` enchaîne ces deux étapes lorsqu'une mise en service est demandée. La préparation seule laisse les sites en service inchangés. L'activation conserve la version précédente et tente de la redémarrer si la nouvelle échoue ; elle n'annule pas une migration de base incompatible.
 
-Si une conversation ouverte garde l’ancienne connexion, redémarrer sa connexion MCP dans les réglages ou rouvrir Codex. Le PC doit être allumé pour cette conversation Codex, mais pas pour consulter les sites depuis un autre appareil.
-
-Le code de référence reste dans `D:\site`. Pour une évolution du logiciel, Codex modifie ce dossier, vérifie son travail puis lance :
-
-```powershell
-node scripts/raspberry.mjs deploy
-```
-
-Cette commande construit et teste les deux applications dans des conteneurs QA séparés, prépare l’image ARM64 sur le PC, la transfère par SSH, sauvegarde la base de la Raspberry puis attend la bonne santé des services. Une version précédente est conservée ; en cas d’échec de démarrage, le script tente de redémarrer cette version sans remplacer la base. Une évolution incompatible du schéma demande un plan spécifique : le retour arrière applicatif ne restaure pas automatiquement la base.
-
-Docker Desktop est nécessaire pour construire et tester le logiciel. Il n’est plus nécessaire au fonctionnement quotidien ni à la connexion MCP distante.
+Les versions exécutées sont dans `/opt/ames-errantes/releases`. `current` désigne la version active. Ne pas modifier leurs fichiers directement. Le code se modifie uniquement dans le dépôt de travail.
 
 ## Vérifier et sauvegarder
 
-```powershell
-node scripts/raspberry.mjs status
-node scripts/raspberry.mjs check
-node scripts/raspberry.mjs backup
-node scripts/raspberry.mjs logs espace
-```
+Dans le projet SSH : `pnpm status`, `pnpm backup`, `pnpm check`, `pnpm test`. Le [guide technique](CONTRIBUTING.md) détaille les commandes.
 
-Le worker crée une sauvegarde PostgreSQL quotidienne et garde les 14 dernières dans `/opt/ames-errantes/shared/backups`. Elles contiennent aussi les photos, qui sont stockées dans PostgreSQL. La copie sur le PC est déclenchée par `Sauvegarder.cmd` ; elle n’est pas automatique. Une sauvegarde sur la même carte SD ne protège pas contre une panne de cette carte.
+Le worker conserve 14 sauvegardes quotidiennes PostgreSQL, photos comprises, dans `/opt/ames-errantes/shared/backups`. Depuis le PC, `Sauvegarder.cmd` copie une sauvegarde distante dans `data/backups-raspberry`. Le code est sauvegardé par Git ; le PC récupère les commits de la Raspberry. Une copie sur la même carte SD ne protège pas contre une panne de la carte : conserver également les sauvegardes sur le PC ou un autre support.
 
-Le test de restauration importe réellement un dump dans une base temporaire. Pour une récupération réelle, restaurer dans une nouvelle base vide, comparer les données et ne basculer qu’après vérification. Ne jamais utiliser `docker compose down -v`, ni écraser la base active.
-
-## Installation sur la Raspberry
-
-- Debian 13 arm64, Raspberry Pi 4 de 2 Go ; Docker démarre avec le système.
-- `/opt/ames-errantes/releases/` : code et configuration de chaque version.
-- `/opt/ames-errantes/current` : lien vers la version active ; `previous` : version précédente lorsqu’elle existe.
-- `/opt/ames-errantes/shared/.env` : secret PostgreSQL et adresses, fichier privé.
-- Volumes Docker du projet `ames-errantes-pi` : base PostgreSQL et données applicatives.
-- Aucun port PostgreSQL ni MCP n’est exposé. Les sites sont accessibles sur les ports 4173 et 4174 du réseau local ; MCP passe par SSH.
-- Journaux limités à 3 fichiers de 5 Mo par service. Tas Node limité et services applicatifs sans privilèges supplémentaires. Le noyau actuel désactive les cgroups mémoire : les plafonds mémoire Docker déclarés ne sont pas appliqués, contrairement aux limites du tas Node.
-
-Les anciennes données du PC sont une archive de secours arrêtée. Ne pas y reprendre le travail et ne pas relancer les applications du Compose local hors de la procédure de test. Les bases SQLite et les anciennes Pages ne sont plus des sources actives.
-
-Les sources, images et sauvegardes de transfert sont privées dans `data/raspberry-transfer`. Aucune clé SSH privée n’a été copiée sur la Raspberry.
-
-Références utilisées : [installation Docker Debian](https://docs.docker.com/engine/install/debian/), [connexion MCP dans Codex](https://learn.chatgpt.com/docs/extend/mcp?surface=cli). Résultats des vérifications : `VALIDATION.md`.
+Le fonctionnement reste limité au réseau domestique. Accéder depuis ailleurs demandera un accès réseau privé adapté. Les limites matérielles et résultats des vérifications sont dans [VALIDATION.md](VALIDATION.md).

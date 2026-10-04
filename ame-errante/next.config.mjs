@@ -4,6 +4,7 @@ import { pages } from "./src/data/pages.js";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  experimental: { cpus: Number(process.env.NEXT_BUILD_WORKERS || 2) },
   turbopack: { root: resolve("..") },
   transpilePackages: ["@ames/core"],
   serverExternalPackages: ["pg", "sharp", "sanitize-html"],

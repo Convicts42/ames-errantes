@@ -1,14 +1,10 @@
-import { chromium, expect } from "@playwright/test";
+import { openBrowser } from "./browser-helper.mjs";
+import { expect } from "@playwright/test";
 import assert from "node:assert/strict";
 import { mkdir } from "node:fs/promises";
 import { pages } from "../packages/core/src/data/pages.js";
 const base = process.env.SITE_CHECK_URL || "http://localhost:4173";
-const browser = await chromium.launch({
-  channel:
-    process.env.PLAYWRIGHT_CHANNEL ||
-    (process.platform === "win32" ? "chrome" : undefined),
-  headless: true,
-});
+const browser = await openBrowser();
 const page = await browser.newPage({
   viewport: { width: 1440, height: 1000 },
   reducedMotion: "reduce",

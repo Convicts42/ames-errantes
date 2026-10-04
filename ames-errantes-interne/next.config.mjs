@@ -2,6 +2,7 @@ import { resolve } from "node:path";
 
 export default {
   poweredByHeader: false,
+  experimental: { cpus: Number(process.env.NEXT_BUILD_WORKERS || 2) },
   transpilePackages: ["@ames/core"],
   serverExternalPackages: ["pg", "sharp", "sanitize-html"],
 

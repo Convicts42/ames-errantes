@@ -12,9 +12,10 @@ const invoke = (args) =>
   });
 const compose = (args) => invoke(qaComposeArgs(args));
 let database;
+let browserEndpoint;
 const containers = [];
 try {
-  for (const name of ["ames-qa-site", "ames-qa-space"]) {
+  for (const name of ["ames-qa-site", "ames-qa-space", "ames-qa-browser"]) {
     let exists = false;
     try {
       await invoke(["container", "inspect", name]);
@@ -24,6 +25,36 @@ try {
       throw new Error(
         `Le conteneur ${name} existe déjà. Vérifier son origine avant un nouvel essai.`,
       );
+  }
+  if (process.platform === "linux") {
+    await invoke([
+      "build",
+      "--target",
+      "browser",
+      "--tag",
+      "ames-errantes-browser:4",
+      root,
+    ]);
+    await invoke([
+      "run",
+      "--rm",
+      "-d",
+      "--name",
+      "ames-qa-browser",
+      "--network",
+      "host",
+      "--shm-size",
+      "256m",
+      "ames-errantes-browser:4",
+    ]);
+    containers.push("ames-qa-browser");
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const output = await invoke(["logs", "ames-qa-browser"]);
+      browserEndpoint = output.stdout.match(/ws:\/\/127\.0\.0\.1:4475\S*/)?.[0];
+      if (browserEndpoint) break;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    if (!browserEndpoint) throw new Error("Navigateur QA indisponible.");
   }
   await compose(["up", "-d", "--wait", "db"]);
   const fixture = await compose([
@@ -84,7 +115,11 @@ try {
   ]) {
     const result = await run(process.execPath, [join(root, "tests", file)], {
       cwd: root,
-      env: { ...process.env, SITE_CHECK_URL: "http://localhost:4473" },
+      env: {
+        ...process.env,
+        SITE_CHECK_URL: "http://localhost:4473",
+        ...(browserEndpoint ? { PLAYWRIGHT_WS_ENDPOINT: browserEndpoint } : {}),
+      },
       windowsHide: true,
     });
     console.log(result.stdout.trim());

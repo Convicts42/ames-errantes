@@ -8,6 +8,13 @@ if (action === "test") {
   await import("./qa.mjs");
   process.exit(0);
 }
+if (
+  process.platform === "linux" &&
+  existsSync("/opt/ames-errantes/current/deploy/raspberry/amesctl.sh")
+) {
+  await import("./deploy-native.mjs");
+  process.exit(0);
+}
 if (existsSync(join(root, "deploy/raspberry/active.json"))) {
   const result = spawnSync(
     process.execPath,

@@ -1,29 +1,29 @@
 # Développer Âmes errantes
 
-Un seul dépôt Git, une seule installation pnpm et un seul verrou de dépendances pour toute la plateforme. La branche principale est `main`. Les sept commits d’origine sont conservés via deux imports d’historique ; les branches `history/ame-errante` et `history/ames-errantes-interne` servent de repères, pas de branches de développement.
+## Un dépôt, un lieu de travail principal
 
-## Organisation
+Le dépôt principal est `/home/convicts/projets/ames-errantes` sur la Raspberry. Le projet SSH ChatGPT du responsable technique pointe sur ce dossier. Il réunit le code des deux sites, le cœur partagé, le MCP, les tests et les commandes de déploiement. Les deux historiques originaux sont conservés.
 
-| Dossier                 | Responsabilité                                              |
-| ----------------------- | ----------------------------------------------------------- |
-| `ame-errante`           | Site public, pages et demandes des visiteurs                |
-| `ames-errantes-interne` | Connexion, documents et toute l’administration              |
-| `packages/core`         | Règles métier, PostgreSQL, migrations, droits et historique |
-| `services/mcp`          | Outils Codex utilisant les mêmes règles métier              |
-| `scripts`               | Commandes de maintenance, tests et déploiement              |
-| `tests`                 | Tests et données entièrement fictives                       |
-| `deploy/raspberry`      | Installation et activation des versions distantes           |
+`D:\site` est une copie de secours sur le PC. Ne pas y poursuivre des modifications concurrentes sans synchronisation Git. Depuis le PC, `git fetch raspberry` puis `git merge --ff-only raspberry/main` récupèrent le travail validé. Un refus de fusion signale une divergence à examiner, pas une raison d'écraser l'une des copies.
 
-Conserver les noms des deux dossiers d’application évite de casser les chemins de déploiement existants. Les petits adaptateurs dans leurs dossiers `server` redirigent vers le cœur commun ; ne pas y recopier les règles métier.
+| Dossier                 | Responsabilité                                      |
+| ----------------------- | --------------------------------------------------- |
+| `ame-errante`           | Site public                                         |
+| `ames-errantes-interne` | Intranet et toute l'administration                  |
+| `packages/core`         | Métier, PostgreSQL, migrations, droits, historique  |
+| `services/mcp`          | Outils IA communs ; profils complet et documentaire |
+| `tests`                 | Données fictives et contrôles                       |
+| `deploy/raspberry`      | Installation, comptes et activation                 |
 
-## Installation et vérification locale
+## Installation du poste de développement Raspberry
 
-Prérequis : Git, Node.js 24, pnpm 11.25.0 et Docker avec Compose. Sous Windows, Docker Desktop doit être démarré et Chrome installé. Sous Linux, installer Chromium avec `pnpm exec playwright install --with-deps chromium` avant les tests de navigateur. `PLAYWRIGHT_CHANNEL` permet de choisir un navigateur installé ; `DOCKER_COMMAND` permet de préciser le chemin de Docker.
+Git et Docker sont requis. `bash deploy/raspberry/install-dev-tools.sh` installe Node.js 24 ARM64 et pnpm 11.25.0 dans le compte utilisateur, en vérifiant le téléchargement. Ouvrir ensuite un nouveau shell de connexion et lancer `pnpm install --frozen-lockfile`.
 
-Depuis la racine :
+Le Dockerfile limite la compilation à un worker Next et le tas Node à 512 Mo. Les tests se déroulent en séquence. Sous Linux, Chromium et ses bibliothèques sont installés dans une image de test séparée, pas dans le système hôte. Son port d'automatisation 4475 écoute uniquement sur loopback et le conteneur est supprimé à la fin.
+
+## Vérification et livraison
 
 ```sh
-pnpm install --frozen-lockfile
 pnpm check
 pnpm format:check
 pnpm qa:build
@@ -32,27 +32,31 @@ pnpm test:browser
 pnpm qa:stop
 ```
 
-La QA crée automatiquement `.env.qa`, son réseau et son volume PostgreSQL sous le projet Docker `ames-errantes-qa`. Elle n’a besoin ni de `.env`, ni d’une clé SSH, ni de dossiers réels. Chaque test utilise une base temporaire. Les interfaces QA utilisent uniquement `127.0.0.1:4473` et `127.0.0.1:4474`, puis sont supprimées. L’arrêt conserve le volume QA ; aucune commande de cette procédure n’efface les volumes existants.
+La QA utilise son propre projet Docker `ames-errantes-qa`, son réseau, son volume et son secret `.env.qa`. Les bases de test sont temporaires. Les ports 4473/4474 sont réservés à loopback. Aucun export privé ni accès à la base active n'est nécessaire.
 
-`pnpm check` analyse la syntaxe JS/JSX, les imports locaux, les sous-modules accidentels et les chemins privés interdits. Il détecte aussi quelques motifs de secrets : ce contrôle ne remplace pas une revue de sécurité. `pnpm format` harmonise le cœur commun, les scripts et la documentation ; les styles des interfaces restent séparés.
+Après modification, faire un commit, puis :
 
-Le workflow GitHub reprend ces étapes sans secret de production et sans déploiement automatique. Il ne s’exécutera qu’après création et connexion d’un dépôt distant.
+```sh
+pnpm deploy:prepare
+pnpm deploy:activate
+```
 
-## Faire une modification
+La préparation refuse un arbre Git sale, construit et teste l'image native, vérifie que le code et l'image n'ont pas changé, archive le commit et écrit une fiche de version. L'activation vérifie ce résultat, crée une sauvegarde de production puis attend la santé des services. `pnpm deploy` enchaîne les deux. La base n'est jamais écrasée ; un retour applicatif ne constitue pas un retour de migration SQL.
 
-1. Partir de `main` et créer une branche courte, par exemple `fix/document-conflict`.
-2. Modifier le bon module, puis vérifier le comportement concerné et les tests ci-dessus.
-3. Faire un commit explicite. Ne jamais ajouter les données ou les secrets avec `git add -f`.
-4. Intégrer sur `main` après revue. Déployer séparément, lorsque la Raspberry est disponible, avec `node scripts/raspberry.mjs deploy`.
+Ne pas lancer plusieurs préparations ou suites QA en parallèle. Après interruption, vérifier les processus avant de retirer un verrou dans `data`. Ne jamais supprimer de volume pour résoudre un problème de test. Les contrôles GitHub Actions sont prêts, mais aucun hébergement GitHub n'est configuré.
 
-Le déploiement exige un arbre Git propre. Il archive uniquement les fichiers du commit, inscrit sa référence dans `release.json` et dans les métadonnées de l’image, puis vérifie que le code n’a pas changé pendant la préparation. Les données locales ignorées ne sont jamais incluses dans cette archive.
+`pnpm start`, `pnpm stop`, `pnpm status` et `pnpm backup` pilotent la production depuis la Raspberry. La procédure SSH Windows reste un accès de maintenance ; elle ne remplace pas le dépôt principal distant.
 
-Les commandes `start`, `stop` et `backup` pilotent la production si `deploy/raspberry/active.json` existe. Elles ne servent pas à tester une modification. Les anciennes commandes des sous-projets sont des raccourcis de compatibilité vers la racine.
+## Accès IA documentaire
 
-## Réglages locaux et données privées
+Le profil MCP `documents` expose uniquement 9 outils de lecture/édition des dossiers, versions et tâches. Il ne permet pas la publication, l'administration du site, les fiches animales ou les demandes. Les appels à ces outils absents sont refusés côté serveur ; les consignes du modèle ne sont pas le mécanisme d'autorisation.
 
-`deploy/raspberry/target.json` et `active.json` sont propres à chaque installation et exclus de Git. Pour configurer un nouveau poste, copier les fichiers `.example.json`, renseigner la cible réelle et installer la clé SSH sur ce poste. Ne pas activer la cible distante avant de l’avoir vérifiée. Les exemples n’affectent pas la configuration existante.
+Le compte Linux `ames-documents` possède son propre répertoire et sa propre connexion ChatGPT. Il n'appartient pas au groupe Docker. Une règle sudo précise autorise uniquement `/usr/local/libexec/ames-documents-mcp` sans argument, fichier appartenant à root qui impose le profil et l'acteur d'audit. Ne pas lui donner accès au socket Docker ou aux secrets de production.
 
-Les fichiers `.env*` (sauf `.env.example`), bases, exports, sauvegardes, captures QA et références graphiques brutes restent hors de Git. Les ressources finales du site sont versionnées dans son dossier `public`. `data/repository-backup/20261004` conserve les deux dépôts originaux et leurs bundles vérifiés.
+Installation administrative : `sudo bash deploy/raspberry/setup-documents-user.sh`. Ajouter ensuite la clé **publique** créée sur son Mac dans `/home/ames-documents/.ssh/authorized_keys`, puis effectuer l'authentification ChatGPT avec son propre compte. Ne pas copier le compte du responsable technique. Les limites de son abonnement et la disponibilité SSH/MCP se vérifient dans son application.
 
-Le dépôt contient du code et des guides internes. Si un hébergement Git est créé, privilégier un dépôt privé. Aucun dépôt distant n’est configuré par cette réorganisation.
+## Données et sauvegardes
+
+Les secrets, fichiers de configuration locaux, bases, dumps, captures et archives restent hors de Git. Les anciennes copies SQLite et locales sont des archives, jamais une source de travail. `data/repository-backup/20261004` sur le PC contient les bundles des anciens dépôts et du dépôt unifié.
+
+Le code en service n'est jamais édité dans `/opt/ames-errantes/current`. Les dossiers métier ne sont jamais dupliqués dans Git pour contourner le MCP.

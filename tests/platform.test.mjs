@@ -478,3 +478,66 @@ test("Real MCP stdio: edits, conflict protection, history, actor and restricted 
       assert.equal((await pub.publicDocuments("mcp-test", db))[0].version, 2);
     }),
   ));
+
+test("Documents-only MCP rejects site administration and records a distinct actor", () =>
+  isolatedDatabase(async (db) => {
+    await site.saveAnimal(seedAnimals[0], null, db);
+    await mcpClient(
+      db.connectionString,
+      async (client) => {
+        const names = (await client.listTools()).tools.map((tool) => tool.name);
+        assert.equal(names.length, 9);
+        for (const forbidden of [
+          "document_publish",
+          "document_unpublish",
+          "settings_update",
+          "animals_list",
+          "requests_list",
+        ]) {
+          assert.ok(!names.includes(forbidden));
+          const result = await client.callTool({
+            name: forbidden,
+            arguments: {},
+          });
+          assert.equal(result.isError, true);
+        }
+        const created = await client.callTool({
+          name: "document_create",
+          arguments: document,
+        });
+        assert.ok(!created.isError);
+        const d = JSON.parse(created.content[0].text);
+        const changed = await client.callTool({
+          name: "document_update",
+          arguments: {
+            id: d.id,
+            version: d.version,
+            patch: { html: "<p>Travail documentaire</p>" },
+          },
+        });
+        assert.ok(!changed.isError);
+        const stale = await client.callTool({
+          name: "document_update",
+          arguments: {
+            id: d.id,
+            version: d.version,
+            patch: { html: "<p>Ancienne version</p>" },
+          },
+        });
+        assert.equal(stale.isError, true);
+        const overview = JSON.parse(
+          (await client.callTool({ name: "project_overview", arguments: {} }))
+            .content[0].text,
+        );
+        assert.ok(!("users" in overview));
+        assert.ok(
+          overview.activity.every((event) =>
+            ["documents", "tasks"].includes(event.entity),
+          ),
+        );
+        assert.equal(overview.activity[0].actor, "IA · Documents test");
+        assert.deepEqual(await pub.publicDocuments(null, db), []);
+      },
+      { AMES_MCP_PROFILE: "documents", AMES_MCP_ACTOR: "IA · Documents test" },
+    );
+  }));

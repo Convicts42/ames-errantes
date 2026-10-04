@@ -18,7 +18,11 @@
     "check": "node scripts/check.mjs",
     "qa:build": "node scripts/qa.mjs build",
     "qa:stop": "node scripts/qa.mjs stop",
-    "format:check": "prettier --check packages services scripts tests deploy *.json *.yaml *.md"
+    "format:check": "prettier --check packages services scripts tests deploy *.json *.yaml *.md",
+    "deploy:prepare": "node scripts/deploy-native.mjs prepare",
+    "deploy:activate": "node scripts/deploy-native.mjs activate",
+    "deploy": "node scripts/deploy-native.mjs deploy",
+    "status": "node scripts/platform-cli.mjs status"
   },
   "devDependencies": {
     "@babel/parser": "^7.28.0",

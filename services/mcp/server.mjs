@@ -16,8 +16,34 @@ import {
 import { AppError } from "@ames/core/workspace/errors.mjs";
 import { pathToFileURL } from "node:url";
 
-export function createServer(db = getDatabase()) {
-  const actor = { name: "IA · Codex" };
+export function createServer(db = getDatabase(), options = {}) {
+  const profile = options.profile || process.env.AMES_MCP_PROFILE || "full";
+  if (!["full", "documents"].includes(profile))
+    throw new Error("Profil MCP inconnu.");
+  const actor = {
+    name: options.actor || process.env.AMES_MCP_ACTOR || "IA · Codex",
+  };
+  if (actor.name.length > 150 || /[\r\n]/.test(actor.name))
+    throw new Error("Acteur MCP invalide.");
+  const documentTools = new Set([
+    "project_overview",
+    "documents_search",
+    "document_read",
+    "document_create",
+    "document_update",
+    "document_history",
+    "document_restore",
+    "task_save",
+    "activity_read",
+  ]);
+  const readActivity = () =>
+    profile === "documents"
+      ? db
+          .query(
+            "SELECT id,actor,entity,entity_id,action,created_at FROM audit_events WHERE entity IN ('documents','tasks') ORDER BY id DESC LIMIT 100",
+          )
+          .then((result) => result.rows)
+      : activity(db);
   const server = new McpServer(
     { name: "ames-errantes", version: "1.0.0" },
     {
@@ -29,6 +55,7 @@ export function createServer(db = getDatabase()) {
     version = z.number().int().positive(),
     patch = z.record(z.string(), z.unknown());
   function tool(name, description, inputSchema, readOnly, work) {
+    if (profile === "documents" && !documentTools.has(name)) return;
     server.registerTool(
       name,
       {
@@ -76,8 +103,8 @@ export function createServer(db = getDatabase()) {
     async () => ({
       documents: await docs.listDocuments(db),
       tasks: await docs.listTasks(db),
-      users: await listUsers(db),
-      activity: await activity(db),
+      ...(profile === "full" ? { users: await listUsers(db) } : {}),
+      activity: await readActivity(),
     }),
   );
   tool(
@@ -263,7 +290,7 @@ export function createServer(db = getDatabase()) {
     "Lire le journal des modifications humaines et IA, sans mots de passe ni jetons.",
     {},
     true,
-    () => activity(db),
+    readActivity,
   );
   return server;
 }
