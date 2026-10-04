@@ -31,7 +31,7 @@ export function openDatabase(path = databasePath()) {
   );
   transaction(db, () => {
     const { user_version: version } = db.prepare("PRAGMA user_version").get();
-    if (version > 1)
+    if (version > 2)
       throw new Error("Database schema is newer than this application.");
     if (version === 0) {
       db.exec(`
@@ -68,6 +68,32 @@ export function openDatabase(path = databasePath()) {
       for (const animal of seedAnimals)
         insert.run(animal.slug, JSON.stringify(animal), 1, animal.status);
       db.exec("PRAGMA user_version = 1");
+    }
+    if (version < 2) {
+      db.exec(`
+        CREATE TABLE settings (id INTEGER PRIMARY KEY CHECK(id=1), content TEXT NOT NULL, version INTEGER NOT NULL DEFAULT 1);
+        CREATE TABLE request_followup (
+          request_id TEXT PRIMARY KEY REFERENCES requests(id) ON DELETE CASCADE,
+          content TEXT NOT NULL DEFAULT '{}', version INTEGER NOT NULL DEFAULT 1,
+          closed_at TEXT
+        );
+        CREATE TABLE request_events (
+          id INTEGER PRIMARY KEY, request_id TEXT NOT NULL REFERENCES requests(id) ON DELETE CASCADE,
+          actor TEXT NOT NULL, description TEXT NOT NULL,
+          created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+        );
+        CREATE TABLE media (id TEXT PRIMARY KEY, bytes BLOB NOT NULL, created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')));
+        CREATE TABLE notifications (
+          id INTEGER PRIMARY KEY, request_id TEXT NOT NULL REFERENCES requests(id) ON DELETE CASCADE,
+          audience TEXT NOT NULL CHECK(audience IN ('team','applicant')),
+          recipient TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', attempts INTEGER NOT NULL DEFAULT 0,
+          next_attempt INTEGER NOT NULL DEFAULT 0, provider_id TEXT, error TEXT,
+          created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+          UNIQUE(request_id,audience,recipient)
+        );
+        CREATE TABLE maintenance (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+        PRAGMA user_version = 2;
+      `);
     }
   });
   return db;

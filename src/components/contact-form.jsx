@@ -5,11 +5,18 @@ import { subjects } from "../data/form-options";
 import { QueryPreset } from "./query-preset";
 import { copyMessage } from "./copy-message";
 import { api, submissionKey } from "./api-client";
+import { PrivacyNote } from "./privacy-note";
+import { WhatsappOptin } from "./whatsapp-optin";
 
-export function ContactForm() {
+export function ContactForm({
+  initialSubject = subjects[0],
+  purpose,
+  settings,
+  whatsappEnabled = false,
+}) {
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
-  const [subject, setSubject] = useState(subjects[0]);
+  const [subject, setSubject] = useState(initialSubject);
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -42,6 +49,14 @@ export function ContactForm() {
       subject,
       message: data.get("message"),
       consent: data.get("consent") === "on",
+      whatsappConsent: data.get("whatsappConsent") === "on",
+      phone: data.get("phone") || "",
+      ...Object.fromEntries(
+        ["location", "availability", "experience", "housing"].map((key) => [
+          key,
+          data.get(key) || "",
+        ]),
+      ),
     };
     const serialized = JSON.stringify(payload);
     if (attempt.current?.serialized !== serialized)
@@ -71,9 +86,11 @@ export function ContactForm() {
 
   return (
     <form id="contact-form" className="contact-form" onSubmit={submit}>
-      <Suspense>
-        <QueryPreset name="subject" onValue={preset} />
-      </Suspense>
+      {!purpose && (
+        <Suspense>
+          <QueryPreset name="subject" onValue={preset} />
+        </Suspense>
+      )}
       <h2>Parlons de votre projet.</h2>
       <fieldset className="plain-fieldset" disabled={pending || !!sent}>
         <div className="form-row">
@@ -95,6 +112,7 @@ export function ContactForm() {
               id="subject"
               name="subject"
               value={subject}
+              disabled={!!purpose}
               onChange={(event) => setSubject(event.target.value)}
             >
               {subjects.map((value) => (
@@ -115,6 +133,33 @@ export function ContactForm() {
             placeholder="Pour vous répondre"
           />
         </label>
+        {purpose && (
+          <div className="help-fields">
+            {[
+              ["location", "Votre commune ou secteur"],
+              ["availability", "Vos disponibilités"],
+              ["experience", "Votre expérience et vos envies"],
+              ...(purpose === "foster"
+                ? [
+                    [
+                      "housing",
+                      "Logement, animaux présents et accueil possible",
+                    ],
+                  ]
+                : []),
+            ].map(([key, label]) => (
+              <label key={key} htmlFor={`help-${key}`}>
+                {label}
+                <textarea
+                  id={`help-${key}`}
+                  name={key}
+                  rows={2}
+                  maxLength={1000}
+                />
+              </label>
+            ))}
+          </div>
+        )}
         <label htmlFor="message">
           Quelques mots sur votre projet
           <textarea
@@ -127,6 +172,8 @@ export function ContactForm() {
             onInput={(event) => event.currentTarget.setCustomValidity("")}
           />
         </label>
+        <WhatsappOptin enabled={whatsappEnabled} />
+        <PrivacyNote settings={settings} />
         <label className="consent">
           <input name="consent" type="checkbox" required />
           J’accepte l’enregistrement de mes coordonnées et de mon message pour
@@ -141,7 +188,11 @@ export function ContactForm() {
       </noscript>
       <p className="form-note">
         Votre demande sera enregistrée et consultable uniquement par l’équipe
-        dans son espace protégé. Aucun e-mail automatique n’est envoyé.
+        dans son espace protégé.{" "}
+        {settings?.responseTime
+          ? `Délai habituel : ${settings.responseTime}.`
+          : "Le délai de réponse sera précisé par l’équipe."}{" "}
+        L’accusé WhatsApp est facultatif et dépend de sa livraison par Meta.
       </p>
       {error && (
         <p role="alert" className="form-error">

@@ -6,6 +6,8 @@ import { flushSync } from "react-dom";
 import { api, submissionKey } from "./api-client";
 import { QueryPreset } from "./query-preset";
 import { copyMessage } from "./copy-message";
+import { PrivacyNote } from "./privacy-note";
+import { WhatsappOptin } from "./whatsapp-optin";
 
 const steps = ["Votre quotidien", "Une place pour lui", "Votre message"];
 
@@ -23,7 +25,7 @@ function SelectField({ name, label, options }) {
   );
 }
 
-export function MeetingForm({ animals }) {
+export function MeetingForm({ animals, settings, whatsappEnabled = false }) {
   const form = useRef(null);
   const prepared = useRef(null);
   const focusOnChange = useRef(false);
@@ -108,7 +110,13 @@ export function MeetingForm({ animals }) {
       return;
     }
     const data = Object.fromEntries(new FormData(form.current));
-    const payload = { ...data, kind: "meeting", consent, summary: message };
+    const payload = {
+      ...data,
+      kind: "meeting",
+      consent,
+      summary: message,
+      whatsappConsent: data.whatsappConsent === "on",
+    };
     const serialized = JSON.stringify(payload);
     if (attempt.current?.serialized !== serialized)
       attempt.current = { serialized, key: submissionKey() };
@@ -326,12 +334,18 @@ export function MeetingForm({ animals }) {
             />
           </label>
           <div className="meeting-next">
+            <WhatsappOptin
+              enabled={whatsappEnabled && !companion?.demo}
+              id="meeting-whatsapp"
+              disabled={pending || !!sent}
+            />
             <span className="eyebrow">ET ENSUITE ?</span>
             <h3>Un échange, puis une rencontre.</h3>
             <p>
               Relisez le récapitulatif avant de l’envoyer. L’équipe pourra
-              ensuite consulter votre demande et vous répondre. Aucun e-mail
-              automatique n’est envoyé.
+              ensuite consulter votre demande et vous répondre.{" "}
+              {settings?.responseTime &&
+                `Délai habituel : ${settings.responseTime}.`}
             </p>
           </div>
         </fieldset>
@@ -412,6 +426,7 @@ export function MeetingForm({ animals }) {
               pour le traitement de cette demande par l’équipe.
             </label>
           )}
+          <PrivacyNote settings={settings} />
           {error && (
             <p role="alert" className="form-error">
               {error}

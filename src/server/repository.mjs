@@ -2,6 +2,9 @@ import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { getDatabase, transaction } from "./database.mjs";
+import { getSettings } from "./settings.mjs";
+import { workflowStages } from "../data/settings.js";
+import { record, text, choice } from "./validation.mjs";
 import {
   HttpError,
   animalInput,
@@ -46,8 +49,21 @@ export function getAnimal(slug, { admin = false } = {}, db = getDatabase()) {
 }
 export function saveAnimal(input, existingSlug = null, db = getDatabase()) {
   const animal = animalInput(input);
-  if (!existsSync(resolve("public", animal.image.slice(1))))
-    throw new HttpError(400, "Image introuvable dans public/assets.");
+  for (const image of [animal.image, ...animal.photos]) {
+    const found = image.startsWith("/media/")
+      ? db.prepare("SELECT id FROM media WHERE id=?").get(image.slice(7))
+      : existsSync(resolve("public", image.slice(1)));
+    if (!found)
+      throw new HttpError(400, "Photo introuvable. Importez-la à nouveau.");
+  }
+  if (
+    animal.adoptionStory &&
+    (!animal.storyConsent || animal.status !== "adopted")
+  )
+    throw new HttpError(
+      400,
+      "Les nouvelles nécessitent un animal adopté et une autorisation de publication.",
+    );
   return transaction(db, () => {
     if (existingSlug) {
       if (animal.slug !== existingSlug)
@@ -130,6 +146,8 @@ export function submitRequest(input, key, db = getDatabase()) {
     }
     consumeLimit("requests:global", 120, 3600000, db);
     consumeLimit(`requests:${hash(payload.email)}`, 5, 3600000, db);
+    if (payload.whatsappConsent)
+      consumeLimit(`whatsapp:${hash(payload.phone)}`, 3, 86400000, db);
     const id = randomUUID();
     db.prepare(
       "INSERT INTO requests(id,idempotency_key,payload_hash,kind,animal_slug,payload) VALUES(?,?,?,?,?,?)",
@@ -141,6 +159,19 @@ export function submitRequest(input, key, db = getDatabase()) {
       payload.animal || null,
       JSON.stringify(payload),
     );
+    const settings = getSettings(db);
+    db.prepare("INSERT INTO request_followup(request_id) VALUES(?)").run(id);
+    if (
+      settings.whatsappEnabled &&
+      settings.whatsappTeamConsent &&
+      !payload.demo
+    ) {
+      const enqueue = db.prepare(
+        "INSERT INTO notifications(request_id,audience,recipient) VALUES(?,?,?)",
+      );
+      enqueue.run(id, "team", settings.whatsappTeam);
+      if (payload.whatsappConsent) enqueue.run(id, "applicant", payload.phone);
+    }
     return { id, duplicate: false };
   });
 }
@@ -150,15 +181,92 @@ export function listRequests(db = getDatabase()) {
       "SELECT id,kind,payload,status,created_at FROM requests ORDER BY created_at DESC LIMIT 500",
     )
     .all()
-    .map((row) => ({ ...row, payload: JSON.parse(row.payload) }));
+    .map((row) => {
+      const followup = db
+        .prepare("SELECT * FROM request_followup WHERE request_id=?")
+        .get(row.id);
+      return {
+        ...row,
+        payload: JSON.parse(row.payload),
+        followup: {
+          stage: "received",
+          assignee: "",
+          notes: "",
+          nextAction: "",
+          appointment: "",
+          followupDate: "",
+          ...(followup ? JSON.parse(followup.content) : {}),
+          version: followup?.version || 0,
+        },
+        events: db
+          .prepare(
+            "SELECT actor,description,created_at FROM request_events WHERE request_id=? ORDER BY id DESC LIMIT 20",
+          )
+          .all(row.id)
+          .map((event) => ({ ...event })),
+      };
+    });
 }
-export function updateRequest(id, status, db = getDatabase()) {
-  status = requestStatus(status);
-  if (
-    !db.prepare("UPDATE requests SET status = ? WHERE id = ?").run(status, id)
-      .changes
-  )
-    throw new HttpError(404, "Demande introuvable.");
+export function updateRequest(id, input, db = getDatabase(), actor = "Équipe") {
+  const data = typeof input === "string" ? { status: input } : record(input);
+  const status = requestStatus(data.status);
+  return transaction(db, () => {
+    const existing = db
+      .prepare("SELECT status FROM requests WHERE id=?")
+      .get(id);
+    if (!existing) throw new HttpError(404, "Demande introuvable.");
+    db.prepare(
+      "INSERT OR IGNORE INTO request_followup(request_id) VALUES(?)",
+    ).run(id);
+    if (data.followup) {
+      const f = record(data.followup);
+      const content = {
+        stage: choice(f.stage, Object.keys(workflowStages), "Étape"),
+      };
+      for (const [key, max] of [
+        ["assignee", 100],
+        ["notes", 5000],
+        ["nextAction", 500],
+        ["appointment", 40],
+        ["followupDate", 40],
+      ])
+        content[key] = text(f[key] ?? "", key, max, 0);
+      for (const key of ["appointment", "followupDate"])
+        if (
+          content[key] &&
+          (!/^\d{4}-\d{2}-\d{2}T/.test(content[key]) ||
+            !Number.isFinite(Date.parse(content[key])))
+        )
+          throw new HttpError(400, "Date invalide.");
+      if (
+        !db
+          .prepare(
+            "UPDATE request_followup SET content=?,version=version+1 WHERE request_id=? AND version=?",
+          )
+          .run(JSON.stringify(content), id, f.version || 1).changes
+      )
+        throw new HttpError(
+          409,
+          "Ce dossier a changé. Actualisez avant de réessayer.",
+        );
+    } else
+      db.prepare(
+        "UPDATE request_followup SET version=version+1 WHERE request_id=?",
+      ).run(id);
+    db.prepare(
+      "UPDATE request_followup SET closed_at = CASE WHEN ?='closed' THEN coalesce(closed_at,strftime('%Y-%m-%dT%H:%M:%fZ','now')) ELSE NULL END WHERE request_id=?",
+    ).run(status, id);
+    db.prepare("UPDATE requests SET status=? WHERE id=?").run(status, id);
+    db.prepare(
+      "INSERT INTO request_events(request_id,actor,description) VALUES(?,?,?)",
+    ).run(
+      id,
+      actor,
+      data.followup
+        ? `Suivi enregistré · ${workflowStages[data.followup.stage]}`
+        : `État : ${status}`,
+    );
+  });
 }
 export function deleteRequest(id, db = getDatabase()) {
   if (!db.prepare("DELETE FROM requests WHERE id = ?").run(id).changes)

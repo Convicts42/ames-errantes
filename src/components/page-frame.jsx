@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { connection } from "next/server";
+import { publicSettings } from "../server/settings.mjs";
 import { Header } from "./header";
 import { Footer } from "./site-parts";
 import { DonationDialog } from "./donation-dialog";
 import { RevealEffects } from "./reveal-effects";
 
-export function PageFrame({ page, children }) {
+export async function PageFrame({ page, children }) {
+  await connection();
+  const settings = publicSettings();
   return (
     <div
       className={`${page.slug === "index" ? "home-page" : "interior-page"} page-${page.slug}`}
@@ -30,8 +34,8 @@ export function PageFrame({ page, children }) {
         )}
         <Suspense>{children}</Suspense>
       </main>
-      <Footer />
-      <DonationDialog />
+      <Footer settings={settings} />
+      <DonationDialog donationUrl={settings.donationUrl} />
       <RevealEffects slug={page.slug} />
     </div>
   );

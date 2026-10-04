@@ -7,6 +7,9 @@ import { createAdmin } from "../src/server/auth.mjs";
 const database = resolve("data/test-runs", `${randomUUID()}.sqlite`);
 process.env.DATABASE_PATH = database;
 process.env.COOKIE_SECURE = "false";
+process.env.DISABLE_MAINTENANCE = "true";
+for (const key of Object.keys(process.env))
+  if (key.startsWith("WHATSAPP_")) delete process.env[key];
 delete process.env.APP_ORIGIN;
 const db = openDatabase(database);
 await createAdmin("test-admin", "Test-only-password-2026!", db);

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { requestStatuses } from "../../data/form-options";
 import { api } from "../api-client";
+import { FollowupEditor } from "./followup-editor";
 
 const labels = {
   home: "Logement",
@@ -16,6 +17,7 @@ export function RequestList({ requests, onChanged }) {
   const [filter, setFilter] = useState("all");
   const [pending, setPending] = useState(null);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
   async function change(id, method, data) {
     if (
       method === "DELETE" &&
@@ -36,12 +38,30 @@ export function RequestList({ requests, onChanged }) {
     }
   }
   const visible = requests.filter(
-    (request) => filter === "all" || request.status === filter,
+    (request) =>
+      (filter === "all" || request.status === filter) &&
+      `${request.id} ${request.payload.name} ${request.payload.email} ${request.followup.assignee} ${request.payload.subject || request.payload.animalName || ""}`
+        .toLowerCase()
+        .includes(search.toLowerCase()),
   );
   return (
     <section aria-label="Demandes reçues">
       <div className="admin-toolbar">
         <h2>Les demandes</h2>
+        <button
+          className="text-link"
+          disabled={!!pending}
+          onClick={async () => {
+            try {
+              await onChanged();
+              setError("");
+            } catch (e) {
+              setError(e.message);
+            }
+          }}
+        >
+          Actualiser les demandes
+        </button>
         <label htmlFor="request-filter">
           Afficher
           <select
@@ -58,6 +78,15 @@ export function RequestList({ requests, onChanged }) {
           </select>
         </label>
       </div>
+      <label>
+        Rechercher un dossier
+        <input
+          type="search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Nom, référence, e-mail ou responsable"
+        />
+      </label>
       <p className="form-note">
         Les 500 dernières demandes. Les coordonnées restent dans cet espace
         protégé.
@@ -83,6 +112,9 @@ export function RequestList({ requests, onChanged }) {
                 </span>
                 <h3>{request.payload.name}</h3>
                 <p>{request.payload.email}</p>
+                {request.payload.phone && (
+                  <p>WhatsApp : {request.payload.phone}</p>
+                )}
               </div>
               <time dateTime={request.created_at}>
                 {new Date(request.created_at).toLocaleString("fr-FR", {
@@ -99,6 +131,25 @@ export function RequestList({ requests, onChanged }) {
               <summary>Lire la demande</summary>
               {request.payload.message && (
                 <p className="preserve-lines">{request.payload.message}</p>
+              )}
+              {["location", "availability", "experience", "housing"].map(
+                (key) =>
+                  request.payload[key] && (
+                    <p key={key}>
+                      <strong>
+                        {
+                          {
+                            location: "Localisation",
+                            availability: "Disponibilités",
+                            experience: "Expérience",
+                            housing: "Accueil proposé",
+                          }[key]
+                        }{" "}
+                        :
+                      </strong>{" "}
+                      {request.payload[key]}
+                    </p>
+                  ),
               )}
               {request.kind === "meeting" && (
                 <>
@@ -117,6 +168,17 @@ export function RequestList({ requests, onChanged }) {
               )}
               <p className="form-note">Référence : {request.id}</p>
             </details>
+            {request.followup.nextAction && (
+              <p>
+                <strong>Prochaine action :</strong>{" "}
+                {request.followup.nextAction}
+              </p>
+            )}
+            <FollowupEditor
+              request={request}
+              pending={pending === request.id}
+              onSave={(data) => change(request.id, "PATCH", data)}
+            />
             <div className="admin-actions">
               <label htmlFor={`status-${request.id}`}>
                 État

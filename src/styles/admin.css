@@ -143,6 +143,51 @@
 .danger {
   color: #923c29;
 }
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 18px;
+  margin: 20px 0;
+}
+.photo-grid img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.photo-editor {
+  margin: 28px 0;
+}
+.service-card {
+  margin-top: 24px;
+}
+.service-card p,
+.setup-guide p {
+  margin-bottom: 16px;
+}
+.setup-guide {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.setup-guide li {
+  margin: 12px 0;
+}
+.setup-guide summary {
+  cursor: pointer;
+}
+.notification-item {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.followup-details form {
+  padding-top: 20px;
+}
+.admin-tabs {
+  flex-wrap: wrap;
+}
 @media (max-width: 650px) {
   .admin-stats {
     grid-template-columns: 1fr;

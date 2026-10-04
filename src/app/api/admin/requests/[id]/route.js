@@ -12,9 +12,9 @@ import {
 } from "../../../../../server/http";
 export const runtime = "nodejs";
 export const PATCH = endpoint(async (request, { params }) => {
-  requireAdmin(request);
+  const admin = requireAdmin(request);
   const { id } = await params;
-  updateRequest(id, record(await body(request)).status);
+  updateRequest(id, record(await body(request)), undefined, admin.username);
   return json({ ok: true });
 });
 export const DELETE = endpoint(async (request, { params }) => {

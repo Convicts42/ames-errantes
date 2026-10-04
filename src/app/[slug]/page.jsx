@@ -13,8 +13,20 @@ import Contact from "../../components/pages/contact";
 import Rencontre from "../../components/pages/rencontre";
 import NouveauFoyer from "../../components/pages/nouveau-foyer";
 import AvantAdoption from "../../components/pages/avant-adoption";
+import {
+  LegalPage,
+  PrivacyPage,
+  FosterPage,
+  VolunteerPage,
+  StoriesPage,
+} from "../../components/pages/information";
 
 const contents = {
+  "mentions-legales": LegalPage,
+  confidentialite: PrivacyPage,
+  "famille-accueil": FosterPage,
+  benevolat: VolunteerPage,
+  "belles-histoires": StoriesPage,
   association: Association,
   animaux: Animaux,
   adopter: Adopter,

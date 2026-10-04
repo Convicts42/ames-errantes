@@ -42,7 +42,7 @@ export default function PageContent() {
             {"Faire un don"}
           </DialogButton>
           <span className="support-fineprint">
-            {"Collecte à connecter à l’association."}
+              {"Un soutien à la hauteur de vos possibilités."}
           </span>
         </article>
         <article className="support-card" data-reveal="">
@@ -62,10 +62,7 @@ export default function PageContent() {
               "Offrir un environnement calme et une présence rassurante, avant un foyer définitif."
             }
           </p>
-          <Link
-            className="button"
-            href="/contact?subject=Devenir%20famille%20d%E2%80%99accueil"
-          >
+          <Link className="button" href="/famille-accueil">
             {"Proposer un accueil"}
           </Link>
         </article>
@@ -86,10 +83,7 @@ export default function PageContent() {
               "Votre énergie, vos idées et vos compétences peuvent faire avancer la mission."
             }
           </p>
-          <Link
-            className="button"
-            href="/contact?subject=Devenir%20b%C3%A9n%C3%A9vole"
-          >
+          <Link className="button" href="/benevolat">
             {"Devenir bénévole"}
           </Link>
         </article>

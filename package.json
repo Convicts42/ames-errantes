@@ -12,7 +12,7 @@
     "start:lan": "next start --hostname 0.0.0.0 --port 4173",
     "check": "node scripts/check.mjs",
     "test": "playwright test",
-    "test:backend": "node --test tests/backend.test.mjs",
+    "test:backend": "node --test tests/backend.test.mjs tests/operations.test.mjs",
     "db:init": "node --env-file-if-exists=.env.local scripts/database.mjs init",
     "db:backup": "node --env-file-if-exists=.env.local scripts/database.mjs backup",
     "admin:create": "node --env-file-if-exists=.env.local scripts/database.mjs admin"
@@ -24,6 +24,7 @@
     "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "sharp": "^0.35.5",
     "three": "0.186.1"
   },
   "devDependencies": {

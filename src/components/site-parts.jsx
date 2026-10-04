@@ -61,7 +61,7 @@ export function Brand() {
     </Link>
   );
 }
-export function Footer() {
+export function Footer({ settings }) {
   return (
     <footer className="site-footer">
       <div className="shell footer-top">
@@ -93,13 +93,13 @@ export function Footer() {
           <Link href="/animaux">{"Nos compagnons"}</Link>
           <Link href="/adopter">{"Le parcours d’adoption"}</Link>
           <Link href="/blog">{"Nos conseils"}</Link>
+          <Link href="/belles-histoires">Les belles histoires</Link>
         </div>
         <div>
           <span className="footer-title">{"Écrire la suite, ensemble"}</span>
           <Link href="/nous-aider">{"Soutenir notre mission"}</Link>
-          <Link href="/contact?subject=Devenir%20b%C3%A9n%C3%A9vole">
-            {"Devenir bénévole"}
-          </Link>
+          <Link href="/benevolat">{"Devenir bénévole"}</Link>
+          <Link href="/famille-accueil">Devenir famille d’accueil</Link>
           <Link href="/contact">{"Nous contacter"}</Link>
         </div>
         <span className="footer-heart" aria-hidden="true">
@@ -108,7 +108,9 @@ export function Footer() {
       </div>
       <div className="shell footer-bottom">
         <span>{"Âme Errante · Chaque âme mérite un foyer."}</span>
-        <span>{"Site de démonstration"}</span>
+        <Link href="/mentions-legales">Mentions légales</Link>
+        <Link href="/confidentialite">Données personnelles</Link>
+        {!settings?.legalName && <span>Site en préparation</span>}
       </div>
     </footer>
   );

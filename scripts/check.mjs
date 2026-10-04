@@ -26,6 +26,7 @@ const child = spawn(
   {
     env: {
       ...process.env,
+      DISABLE_MAINTENANCE: "true",
       DATABASE_PATH: resolve("data/test-runs", `${randomUUID()}.sqlite`),
     },
     stdio: ["ignore", "ignore", "pipe"],

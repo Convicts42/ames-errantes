@@ -1,6 +1,9 @@
 import Link from "next/link";
 
 import { ContactForm } from "../contact-form";
+import { PracticalInfo } from "../practical-info";
+import { publicSettings } from "../../server/settings.mjs";
+import { whatsappAvailable } from "../../server/notifications.mjs";
 
 export default function PageContent() {
   return (
@@ -44,8 +47,12 @@ export default function PageContent() {
             </div>
           </div>
         </div>
-        <ContactForm />
+        <ContactForm
+          settings={publicSettings()}
+          whatsappEnabled={whatsappAvailable()}
+        />
       </section>
+      <PracticalInfo />
     </>
   );
 }

@@ -3,15 +3,17 @@
 import { useState } from "react";
 import { animalStatuses } from "../../data/form-options";
 import { api } from "../api-client";
+import { PhotoEditor } from "./photo-editor";
 
 const fields = [
   ["name", "Nom", 100],
   ["slug", "Adresse de la fiche", 80],
-  ["image", "Chemin de la photo", 200],
   ["alt", "Description de la photo", 250],
   ["age", "Âge et sexe", 200],
   ["compatibility", "Entente avec les animaux", 500],
   ["children", "Vie avec des enfants", 500],
+  ["size", "Gabarit", 200],
+  ["location", "Localisation approximative", 200],
 ];
 const paragraphs = [
   ["description", "Description courte", 500],
@@ -19,6 +21,8 @@ const paragraphs = [
   ["lede", "Introduction de la fiche", 1000],
   ["story", "Son histoire", 5000],
   ["home", "Son futur foyer", 2000],
+  ["health", "Santé, identification et soins à prévoir", 1500],
+  ["adoptionStory", "Nouvelles après adoption (facultatif)", 3000],
 ];
 const lists = [
   ["traits", "Traits de caractère", 6],
@@ -29,9 +33,14 @@ const lists = [
 export function AnimalEditor({ animal, onSaved, onCancel }) {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
+  const [photos, setPhotos] = useState([
+    ...new Set([animal.image, ...(animal.photos || [])].filter(Boolean)),
+  ]);
+  const [uploading, setUploading] = useState(false);
   const editing = !!animal?.version;
   async function submit(event) {
     event.preventDefault();
+    if (uploading) return;
     const data = Object.fromEntries(new FormData(event.currentTarget));
     for (const [key] of lists)
       data[key] = data[key]
@@ -40,6 +49,9 @@ export function AnimalEditor({ animal, onSaved, onCancel }) {
         .filter(Boolean);
     data.demo = data.demo === "on";
     data.published = data.published === "on";
+    data.storyConsent = data.storyConsent === "on";
+    data.image = photos[0] || "";
+    data.photos = photos;
     if (editing) {
       data.slug = animal.slug;
       data.version = animal.version;
@@ -70,7 +82,7 @@ export function AnimalEditor({ animal, onSaved, onCancel }) {
                 id={`animal-${name}`}
                 name={name}
                 maxLength={max}
-                required
+                required={!["size", "location"].includes(name)}
                 defaultValue={
                   animal?.[name] ||
                   (name === "image" ? "/assets/dog-portrait.webp" : "")
@@ -105,11 +117,14 @@ export function AnimalEditor({ animal, onSaved, onCancel }) {
             </select>
           </label>
         </div>
+        <PhotoEditor
+          photos={photos}
+          onChange={setPhotos}
+          onBusy={setUploading}
+        />
         <p className="form-note">
-          Adresse : lettres minuscules, chiffres et tirets. Photo : chemin d’une
-          image placée dans public/assets, par exemple
-          /assets/dog-portrait.webp. Les images d’exemple sont des
-          illustrations.
+          Adresse : lettres minuscules, chiffres et tirets. Localisation :
+          commune ou département, sans adresse privée.
         </p>
         {paragraphs.map(([name, label, max]) => (
           <label key={name} htmlFor={`animal-${name}`}>
@@ -117,7 +132,7 @@ export function AnimalEditor({ animal, onSaved, onCancel }) {
             <textarea
               id={`animal-${name}`}
               name={name}
-              required
+              required={!["health", "adoptionStory"].includes(name)}
               maxLength={max}
               rows={name === "story" ? 5 : 3}
               defaultValue={animal?.[name] || ""}
@@ -143,6 +158,15 @@ export function AnimalEditor({ animal, onSaved, onCancel }) {
         </div>
         <label className="consent">
           <input
+            name="storyConsent"
+            type="checkbox"
+            defaultChecked={animal?.storyConsent || false}
+          />
+          J’ai l’autorisation de publier ces nouvelles et leurs photos, sans
+          coordonnées personnelles des adoptants.
+        </label>
+        <label className="consent">
+          <input
             name="demo"
             type="checkbox"
             defaultChecked={animal?.demo ?? true}
@@ -158,7 +182,7 @@ export function AnimalEditor({ animal, onSaved, onCancel }) {
           Publier la fiche dans le catalogue
         </label>
         <div className="admin-actions">
-          <button className="button">
+          <button className="button" disabled={uploading}>
             {pending ? "Enregistrement…" : "Enregistrer la fiche"}
           </button>
           <button className="text-link" type="button" onClick={onCancel}>

@@ -2116,3 +2116,97 @@ dialog > p {
     animation: none !important;
   }
 }
+/* Practical information, privacy and association participation pages. */
+.reading-page {
+  padding-top: 45px;
+  padding-bottom: 80px;
+  max-width: 960px;
+}
+.reading-page h1 {
+  font-size: clamp(38px, 6vw, 66px);
+  margin: 20px 0 35px;
+}
+.reading-page h2 {
+  font-size: 32px;
+  margin: 35px 0 16px;
+}
+.reading-page p {
+  margin-bottom: 22px;
+  line-height: 1.8;
+}
+.reading-page dl > div,
+.practical-info dl > div {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.reading-page dt,
+.practical-info dt {
+  font-weight: 600;
+}
+.reading-page dd,
+.practical-info dd {
+  margin: 8px 0 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.practical-info {
+  padding-top: 40px;
+  padding-bottom: 60px;
+}
+.practical-info h2 {
+  margin: 16px 0 24px;
+}
+.practical-info h3 {
+  margin-top: 28px;
+}
+.practical-info p {
+  margin: 18px 0;
+}
+.practical-info dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 32px;
+}
+.animal-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.animal-gallery img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  border-radius: 12px;
+}
+.stories-grid {
+  display: grid;
+  gap: 30px;
+  margin: 30px 0;
+}
+.stories-grid img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 18px;
+}
+.whatsapp-optin {
+  margin: 22px 0;
+  padding: 18px;
+  background: #edf0e4;
+  border-radius: 12px;
+}
+.preserve-lines {
+  white-space: pre-wrap;
+}
+.footer-bottom {
+  flex-wrap: wrap;
+  gap: 16px;
+}
+@media (max-width: 650px) {
+  .practical-info dl {
+    grid-template-columns: 1fr;
+  }
+  .reading-page {
+    padding-top: 25px;
+  }
+}

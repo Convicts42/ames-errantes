@@ -94,4 +94,19 @@ export const pages = [
       "Une adoption engage toute la famille. Prenez un moment pour imaginer votre quotidien, avec ses joies, ses habitudes et ses contraintes.",
   },
 ];
+pages.push(
+  ...[
+    ["mentions-legales", "Mentions légales"],
+    ["confidentialite", "Données personnelles"],
+    ["famille-accueil", "Devenir famille d’accueil"],
+    ["benevolat", "Devenir bénévole"],
+    ["belles-histoires", "Les belles histoires"],
+  ].map(([slug, label]) => ({
+    slug,
+    label,
+    title: label,
+    description: `${label} — Âme Errante.`,
+    nav: slug === "belles-histoires" ? "animaux" : "nous-aider",
+  })),
+);
 export const getPage = (slug) => pages.find((page) => page.slug === slug);

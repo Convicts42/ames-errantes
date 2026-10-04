@@ -7,6 +7,7 @@ import { animalStatuses } from "../../data/form-options";
 import { api } from "../api-client";
 import { AnimalEditor } from "./animal-editor";
 import { RequestList } from "./request-list";
+import { SettingsPanel } from "./settings-panel";
 
 export function Dashboard({ username, initialAnimals, initialRequests }) {
   const router = useRouter();
@@ -89,6 +90,7 @@ export function Dashboard({ username, initialAnimals, initialRequests }) {
         {[
           ["requests", "Demandes"],
           ["animals", "Animaux"],
+          ["settings", "Réglages et WhatsApp"],
           ["account", "Mon compte"],
         ].map(([key, label]) => (
           <button
@@ -113,6 +115,7 @@ export function Dashboard({ username, initialAnimals, initialRequests }) {
       {tab === "requests" && (
         <RequestList requests={requests} onChanged={refreshRequests} />
       )}
+      {tab === "settings" && <SettingsPanel />}
       {tab === "animals" &&
         (editing ? (
           <AnimalEditor

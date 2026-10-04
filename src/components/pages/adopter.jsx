@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PracticalInfo } from "../practical-info";
 
 export default function PageContent() {
   return (
@@ -73,6 +74,7 @@ export default function PageContent() {
           </article>
         </div>
       </section>
+      <PracticalInfo adoption />
       <section className="faq shell" data-reveal="">
         <span className="eyebrow">{"AVANT DE FAIRE LE PREMIER PAS"}</span>
         <h2>{"Vos questions ont leur place."}</h2>

@@ -49,6 +49,14 @@ export async function body(request) {
     )
   )
     throw new HttpError(415, "Format JSON requis.");
+  const bytes = await readBytes(request, 32768);
+  try {
+    return JSON.parse(bytes.toString("utf8"));
+  } catch {
+    throw new HttpError(400, "Données JSON invalides.");
+  }
+}
+export async function readBytes(request, maximum) {
   const reader = request.body?.getReader();
   if (!reader) throw new HttpError(400, "Données manquantes.");
   const chunks = [];
@@ -57,17 +65,13 @@ export async function body(request) {
     const { done, value } = await reader.read();
     if (done) break;
     length += value.byteLength;
-    if (length > 32768) {
+    if (length > maximum) {
       await reader.cancel();
       throw new HttpError(413, "Le message est trop volumineux.");
     }
     chunks.push(value);
   }
-  try {
-    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
-  } catch {
-    throw new HttpError(400, "Données JSON invalides.");
-  }
+  return Buffer.concat(chunks);
 }
 export function tokenFrom(request) {
   return (request.headers.get("cookie") || "")

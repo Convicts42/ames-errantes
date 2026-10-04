@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Dialog } from "./dialog";
-export function DonationDialog() {
+export function DonationDialog({ donationUrl }) {
   return (
     <Dialog id="don" labelledBy="don-title">
       <div className="dialog-emblem">
@@ -19,11 +19,28 @@ export function DonationDialog() {
           "Votre soutien peut contribuer à l’accueil, à l’alimentation et aux soins des animaux."
         }
       </p>
-      <div className="notice">
-        {
-          "La collecte n’est pas encore ouverte. Le lien de paiement de l’association doit être ajouté avant de pouvoir recevoir un don."
-        }
-      </div>
+      {donationUrl ? (
+        <>
+          <a
+            className="button"
+            href={donationUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Faire un don sur HelloAsso ↗
+          </a>
+          <p className="form-note">
+            Le paiement se déroule sur HelloAsso. Le site ne conserve aucune
+            donnée bancaire.
+          </p>
+        </>
+      ) : (
+        <div className="notice">
+          {
+            "La collecte n’est pas encore ouverte. Le lien de paiement de l’association doit être ajouté avant de pouvoir recevoir un don."
+          }
+        </div>
+      )}
       <Link className="button" href="/nous-aider">
         {"Les autres façons d’aider"}
       </Link>

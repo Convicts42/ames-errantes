@@ -33,6 +33,27 @@ export function AnimalProfile({ animal }) {
             <br />
             <em>Une histoire à écrire ensemble.</em>
           </p>
+          <div className="animal-gallery">
+            {(animal.photos || [])
+              .filter((url) => url !== animal.image)
+              .map((url, index) => (
+                <a
+                  key={url}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`Voir la photo ${index + 2} de ${animal.name} en grand`}
+                >
+                  <img
+                    src={url}
+                    alt={`${animal.name} — photo ${index + 2}`}
+                    width={600}
+                    height={450}
+                    loading="lazy"
+                  />
+                </a>
+              ))}
+          </div>
         </div>
         <div className="profile-story">
           <span className="eyebrow">
@@ -53,6 +74,16 @@ export function AnimalProfile({ animal }) {
           <div className="profile-facts">
             <h2>Avant de se rencontrer.</h2>
             <dl>
+              {[
+                ["size", "Gabarit"],
+                ["location", "Localisation"],
+                ["health", "Santé et soins"],
+              ].map(([key, label]) => (
+                <div key={key}>
+                  <dt>{label}</dt>
+                  <dd>{animal[key] || "À préciser avec l’équipe"}</dd>
+                </div>
+              ))}
               <div>
                 <dt>Âge et sexe</dt>
                 <dd>{animal.age}</dd>
@@ -101,6 +132,15 @@ export function AnimalProfile({ animal }) {
         </div>
       </section>
       <section className="profile-chapters shell">
+        {animal.status === "adopted" &&
+          animal.storyConsent &&
+          animal.adoptionStory && (
+            <article className="profile-chapter">
+              <span className="eyebrow">DES NOUVELLES DE SON FOYER</span>
+              <h2>La suite de son histoire.</h2>
+              <p className="preserve-lines">{animal.adoptionStory}</p>
+            </article>
+          )}
         <article className="profile-chapter" data-reveal="">
           <span className="eyebrow">01 / SON PETIT UNIVERS</span>
           <h2>

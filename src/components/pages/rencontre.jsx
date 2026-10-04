@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import { MeetingForm } from "../meeting-form";
 import { listAnimals } from "../../server/repository.mjs";
+import { publicSettings } from "../../server/settings.mjs";
+import { whatsappAvailable } from "../../server/notifications.mjs";
 
 export default function PageContent() {
   return (
@@ -22,7 +24,11 @@ export default function PageContent() {
         </p>
       </div>
 
-      <MeetingForm animals={listAnimals({ available: true })} />
+      <MeetingForm
+        animals={listAnimals({ available: true })}
+        settings={publicSettings()}
+        whatsappEnabled={whatsappAvailable()}
+      />
     </>
   );
 }
