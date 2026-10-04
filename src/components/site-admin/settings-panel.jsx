@@ -275,7 +275,7 @@ export function SettingsPanel() {
               Dernier passage du service : {date(state.maintenance.lastRun)}.
             </p>
             <p>
-              Les sauvegardes sont conservées dans le volume Docker local.
+              Les sauvegardes sont conservées sur le serveur de l’association.
               Utilisez le lanceur « Sauvegarder » sur le PC pour les exporter,
               puis copiez-les sur un autre support.
             </p>

@@ -87,8 +87,8 @@ export function Activity() {
           restent privés tant que leur publication n’est pas demandée.
         </p>
         <p className="quiet-note">
-          Connexion locale MCP « ames-errantes » · Le PC et Docker doivent être
-          démarrés.
+          Connexion MCP « ames-errantes » · Vos dossiers et leur historique sont
+          conservés dans la base commune.
         </p>
       </section>
       <h2 className="activity-heading">Derniers changements</h2>
