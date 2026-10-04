@@ -1,0 +1,39 @@
+{
+  "name": "ames-errantes-interne",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 4174",
+    "dev:lan": "next dev --hostname 0.0.0.0 --port 4174",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1 --port 4174",
+    "start:lan": "next start --hostname 0.0.0.0 --port 4174",
+    "db:init": "node --env-file-if-exists=.env.local scripts/manage.mjs init",
+    "db:backup": "node --env-file-if-exists=.env.local scripts/manage.mjs backup",
+    "test:unit": "node --test tests/store.test.mjs",
+    "test": "playwright test",
+    "format": "prettier --write src scripts tests *.mjs *.js *.json"
+  },
+  "dependencies": {
+    "next": "16.3.8",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "@tiptap/react": "3.31.4",
+    "@tiptap/pm": "3.31.4",
+    "@tiptap/starter-kit": "3.31.4",
+    "@tiptap/extension-table": "3.31.4",
+    "marked": "18.0.14",
+    "sanitize-html": "2.18.0",
+    "lucide-react": "1.52.0",
+    "@ames/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "prettier": "3.9.9"
+  }
+}
