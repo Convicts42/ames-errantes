@@ -1,6 +1,5 @@
-import { sessionCookie, getSession } from "./auth.mjs";
+import { withActor } from "@ames/core/database.mjs";
 import { HttpError } from "./validation.mjs";
-
 export function json(data, status = 200, headers = {}) {
   return Response.json(data, {
     status,
@@ -14,17 +13,30 @@ export function json(data, status = 200, headers = {}) {
 export function endpoint(handler) {
   return async (...args) => {
     try {
-      return await handler(...args);
+      return await withActor("Visiteur", () => handler(...args));
     } catch (error) {
+      if (error.code === "23505")
+        return json(
+          { error: "Cet élément existe déjà. Actualisez la page." },
+          409,
+        );
       if (error instanceof HttpError)
         return json(
-          { error: error.message },
+          {
+            error: error.message,
+          },
           error.status,
-          error.status === 429 ? { "Retry-After": "900" } : {},
+          error.status === 429
+            ? {
+                "Retry-After": "900",
+              }
+            : {},
         );
       console.error("Backend operation failed:", error.code || error.name);
       return json(
-        { error: "Le serveur n’a pas pu terminer cette opération. Réessayez." },
+        {
+          error: "Le serveur n’a pas pu terminer cette opération. Réessayez.",
+        },
         500,
       );
     }
@@ -72,23 +84,4 @@ export async function readBytes(request, maximum) {
     chunks.push(value);
   }
   return Buffer.concat(chunks);
-}
-export function tokenFrom(request) {
-  return (request.headers.get("cookie") || "")
-    .split(";")
-    .map((value) => value.trim())
-    .find((value) => value.startsWith(`${sessionCookie}=`))
-    ?.slice(sessionCookie.length + 1);
-}
-export function requireAdmin(request) {
-  const admin = getSession(tokenFrom(request));
-  if (!admin) throw new HttpError(401, "Connectez-vous à l’administration.");
-  return admin;
-}
-export function cookieHeader(token, maxAge) {
-  const secure =
-    process.env.COOKIE_SECURE === "true" ||
-    (process.env.NODE_ENV === "production" &&
-      process.env.COOKIE_SECURE !== "false");
-  return `${sessionCookie}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${maxAge}${secure ? "; Secure" : ""}`;
 }

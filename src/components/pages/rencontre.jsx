@@ -1,11 +1,9 @@
 import Link from "next/link";
-
 import { MeetingForm } from "../meeting-form";
 import { listAnimals } from "../../server/repository.mjs";
 import { publicSettings } from "../../server/settings.mjs";
 import { whatsappAvailable } from "../../server/notifications.mjs";
-
-export default function PageContent() {
+export default async function PageContent() {
   return (
     <>
       <div className="page-intro shell">
@@ -25,9 +23,11 @@ export default function PageContent() {
       </div>
 
       <MeetingForm
-        animals={listAnimals({ available: true })}
-        settings={publicSettings()}
-        whatsappEnabled={whatsappAvailable()}
+        animals={await listAnimals({
+          available: true,
+        })}
+        settings={await publicSettings()}
+        whatsappEnabled={await whatsappAvailable()}
       />
     </>
   );

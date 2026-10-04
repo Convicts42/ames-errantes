@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { PracticalInfo } from "../practical-info";
-
 export default function PageContent() {
   return (
     <>

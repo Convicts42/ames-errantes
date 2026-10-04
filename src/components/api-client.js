@@ -4,10 +4,22 @@ export async function api(url, { method = "GET", data, key } = {}) {
     credentials: "same-origin",
     cache: "no-store",
     headers: {
-      ...(data !== undefined ? { "Content-Type": "application/json" } : {}),
-      ...(key ? { "Idempotency-Key": key } : {}),
+      ...(data !== undefined
+        ? {
+            "Content-Type": "application/json",
+          }
+        : {}),
+      ...(key
+        ? {
+            "Idempotency-Key": key,
+          }
+        : {}),
     },
-    ...(data !== undefined ? { body: JSON.stringify(data) } : {}),
+    ...(data !== undefined
+      ? {
+          body: JSON.stringify(data),
+        }
+      : {}),
   }).catch(() => {
     throw new Error("Connexion impossible. Vérifiez le réseau puis réessayez.");
   });

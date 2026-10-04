@@ -1,5 +1,4 @@
 import * as THREE from "three";
-
 export async function createHeroScene(hero, signal) {
   const canvas = hero.querySelector(".hero-canvas");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
@@ -17,7 +16,6 @@ export async function createHeroScene(hero, signal) {
     hero.dataset.effectState = "fallback";
     return;
   }
-
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 20);
   camera.position.z = 5;
@@ -43,10 +41,11 @@ export async function createHeroScene(hero, signal) {
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   texture.colorSpace = THREE.SRGBColorSpace;
   const imageGeometry = new THREE.PlaneGeometry(1, 1);
-  const imageMaterial = new THREE.MeshBasicMaterial({ map: texture });
+  const imageMaterial = new THREE.MeshBasicMaterial({
+    map: texture,
+  });
   const imagePlane = new THREE.Mesh(imageGeometry, imageMaterial);
   scene.add(imagePlane);
-
   const count = coarse.matches ? 20 : 64;
   const positions = new Float32Array(count * 3);
   const origins = new Float32Array(count * 3);
@@ -162,7 +161,9 @@ export async function createHeroScene(hero, signal) {
       visible = entries[0].isIntersecting;
       synchronize();
     },
-    { threshold: 0.05 },
+    {
+      threshold: 0.05,
+    },
   );
   observer.observe(hero);
   const onPointer = (event) => {
@@ -185,7 +186,9 @@ export async function createHeroScene(hero, signal) {
     canvas.hidden = true;
     synchronize();
   };
-  hero.addEventListener("pointermove", onPointer, { passive: true });
+  hero.addEventListener("pointermove", onPointer, {
+    passive: true,
+  });
   hero.addEventListener("pointerleave", resetPointer);
   document.addEventListener("visibilitychange", synchronize);
   reduced.addEventListener("change", onReduced);

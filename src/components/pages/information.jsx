@@ -4,9 +4,8 @@ import { whatsappAvailable } from "../../server/notifications.mjs";
 import { listAnimals } from "../../server/repository.mjs";
 import { ContactForm } from "../contact-form";
 import { PracticalInfo } from "../practical-info";
-
-export function LegalPage() {
-  const s = publicSettings();
+export async function LegalPage() {
+  const s = await publicSettings();
   return (
     <article className="reading-page shell">
       <span className="eyebrow">TRANSPARENCE</span>
@@ -46,8 +45,8 @@ export function LegalPage() {
     </article>
   );
 }
-export function PrivacyPage() {
-  const s = publicSettings();
+export async function PrivacyPage() {
+  const s = await publicSettings();
   return (
     <article className="reading-page shell">
       <span className="eyebrow">VOS DONNÉES</span>
@@ -127,14 +126,15 @@ export function PrivacyPage() {
       </p>
       <h2>Cookies</h2>
       <p>
-        Le site utilise un cookie strictement nécessaire à la connexion à
-        l’administration, valable au maximum huit heures. Aucun outil de
-        publicité ou de mesure d’audience n’est installé par le site.
+        La connexion à l’espace interne de l’équipe utilise un cookie de
+        session, valable au maximum huit heures. Le site public ne donne aucun
+        accès à l’administration. Aucun outil de publicité ou de mesure
+        d’audience n’est installé par le site.
       </p>
     </article>
   );
 }
-function HelpPage({ foster }) {
+async function HelpPage({ foster }) {
   const subject = foster ? "Devenir famille d’accueil" : "Devenir bénévole";
   return (
     <>
@@ -171,8 +171,8 @@ function HelpPage({ foster }) {
         <ContactForm
           initialSubject={subject}
           purpose={foster ? "foster" : "volunteer"}
-          settings={publicSettings()}
-          whatsappEnabled={whatsappAvailable()}
+          settings={await publicSettings()}
+          whatsappEnabled={await whatsappAvailable()}
         />
       </section>
       <PracticalInfo />
@@ -181,8 +181,8 @@ function HelpPage({ foster }) {
 }
 export const FosterPage = () => <HelpPage foster />;
 export const VolunteerPage = () => <HelpPage />;
-export function StoriesPage() {
-  const animals = listAnimals().filter(
+export async function StoriesPage() {
+  const animals = (await listAnimals()).filter(
     (a) =>
       a.status === "adopted" && a.storyConsent && a.adoptionStory && !a.demo,
   );

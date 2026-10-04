@@ -1,9 +1,7 @@
 import Link from "next/link";
-
 import { Catalog } from "../catalog";
 import { listAnimals } from "../../server/repository.mjs";
-
-export default function PageContent() {
+export default async function PageContent() {
   return (
     <>
       <div className="page-intro shell">
@@ -23,7 +21,7 @@ export default function PageContent() {
           }
         </p>
       </div>
-      <Catalog animals={listAnimals()} />
+      <Catalog animals={await listAnimals()} />
       <aside className="closing-cta shell" data-reveal="">
         <div>
           <h2>{"Le coup de cœur, et après ?"}</h2>

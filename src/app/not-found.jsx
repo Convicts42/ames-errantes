@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { PageFrame } from "../components/page-frame";
-
 export default function NotFound() {
   return (
-    <PageFrame page={{ slug: "404", label: "Page introuvable" }}>
+    <PageFrame
+      page={{
+        slug: "404",
+        label: "Page introuvable",
+      }}
+    >
       <section className="page-intro shell">
         <div>
           <span className="eyebrow">PAGE INTROUVABLE</span>

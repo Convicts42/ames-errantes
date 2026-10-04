@@ -1,7 +1,5 @@
 import Link from "next/link";
-
 import { DialogButton } from "../dialog";
-
 export default function PageContent() {
   return (
     <>
@@ -42,7 +40,7 @@ export default function PageContent() {
             {"Faire un don"}
           </DialogButton>
           <span className="support-fineprint">
-              {"Un soutien à la hauteur de vos possibilités."}
+            {"Un soutien à la hauteur de vos possibilités."}
           </span>
         </article>
         <article className="support-card" data-reveal="">

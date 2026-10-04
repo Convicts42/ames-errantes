@@ -6,10 +6,9 @@ import { Header } from "./header";
 import { Footer } from "./site-parts";
 import { DonationDialog } from "./donation-dialog";
 import { RevealEffects } from "./reveal-effects";
-
 export async function PageFrame({ page, children }) {
   await connection();
-  const settings = publicSettings();
+  const settings = await publicSettings();
   return (
     <div
       className={`${page.slug === "index" ? "home-page" : "interior-page"} page-${page.slug}`}

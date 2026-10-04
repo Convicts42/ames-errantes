@@ -94,6 +94,7 @@ export function Footer({ settings }) {
           <Link href="/adopter">{"Le parcours d’adoption"}</Link>
           <Link href="/blog">{"Nos conseils"}</Link>
           <Link href="/belles-histoires">Les belles histoires</Link>
+          <Link href="/projet">Le projet du refuge</Link>
         </div>
         <div>
           <span className="footer-title">{"Écrire la suite, ensemble"}</span>

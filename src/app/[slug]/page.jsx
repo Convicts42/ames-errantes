@@ -20,7 +20,6 @@ import {
   VolunteerPage,
   StoriesPage,
 } from "../../components/pages/information";
-
 const contents = {
   "mentions-legales": LegalPage,
   confidentialite: PrivacyPage,
@@ -37,7 +36,6 @@ const contents = {
   "nouveau-foyer": NouveauFoyer,
   "avant-adoption": AvantAdoption,
 };
-
 function profilePage(animal) {
   return {
     slug: animal.slug,
@@ -48,23 +46,24 @@ function profilePage(animal) {
     description: animal.description,
   };
 }
-
 export async function generateMetadata({ params }) {
   await connection();
   const { slug } = await params;
-  const animal = Object.hasOwn(contents, slug) ? null : getAnimal(slug);
+  const animal = Object.hasOwn(contents, slug) ? null : await getAnimal(slug);
   const page = Object.hasOwn(contents, slug)
     ? getPage(slug)
     : animal && profilePage(animal);
   if (!page) notFound();
-  return { title: page.title, description: page.description };
+  return {
+    title: page.title,
+    description: page.description,
+  };
 }
-
 export default async function ContentPage({ params }) {
   await connection();
   const { slug } = await params;
   if (!Object.hasOwn(contents, slug)) {
-    const animal = getAnimal(slug);
+    const animal = await getAnimal(slug);
     if (!animal) notFound();
     return (
       <PageFrame key={slug} page={profilePage(animal)}>
@@ -79,3 +78,5 @@ export default async function ContentPage({ params }) {
     </PageFrame>
   );
 }
+
+export const dynamic = "force-dynamic";

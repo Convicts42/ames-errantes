@@ -14,7 +14,9 @@ export const GET = endpoint(async (request) => {
   )
     throw new HttpError(403, "Vérification refusée.");
   return new Response(p.get("hub.challenge") || "", {
-    headers: { "Content-Type": "text/plain" },
+    headers: {
+      "Content-Type": "text/plain",
+    },
   });
 });
 export const POST = endpoint(async (request) => {
@@ -27,6 +29,8 @@ export const POST = endpoint(async (request) => {
   } catch {
     throw new HttpError(400, "JSON invalide.");
   }
-  applyWebhook(data);
-  return json({ ok: true });
+  await applyWebhook(data);
+  return json({
+    ok: true,
+  });
 });

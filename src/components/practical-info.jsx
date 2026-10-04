@@ -1,6 +1,6 @@
 import { publicSettings } from "../server/settings.mjs";
-export function PracticalInfo({ adoption = false }) {
-  const s = publicSettings();
+export async function PracticalInfo({ adoption = false }) {
+  const s = await publicSettings();
   const fields = adoption
     ? [
         ["area", "Où adopter ?"],

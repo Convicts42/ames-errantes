@@ -3,8 +3,15 @@ import { endpoint, json } from "../../../../server/http";
 export const runtime = "nodejs";
 export const GET = endpoint(async (_request, { params }) => {
   const { slug } = await params;
-  const animal = getAnimal(slug);
+  const animal = await getAnimal(slug);
   return animal
-    ? json({ animal })
-    : json({ error: "Compagnon introuvable." }, 404);
+    ? json({
+        animal,
+      })
+    : json(
+        {
+          error: "Compagnon introuvable.",
+        },
+        404,
+      );
 });
