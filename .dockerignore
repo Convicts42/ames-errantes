@@ -1,0 +1,14 @@
+**/node_modules
+**/.next
+**/.git
+**/.codex
+**/.agents
+**/.env*
+/data
+/ame-errante/data
+/ames-errantes-interne/data
+**/test-results
+**/playwright-report
+.pnpm-store
+refs
+*.log

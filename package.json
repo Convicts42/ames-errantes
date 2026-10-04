@@ -1,0 +1,27 @@
+{
+  "name": "ames-errantes-platform",
+  "version": "4.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "build": "pnpm --filter ame-errante build && pnpm --filter ames-errantes-interne build",
+    "start": "node scripts/platform-cli.mjs start",
+    "stop": "node scripts/platform-cli.mjs stop",
+    "backup": "node scripts/platform-cli.mjs backup",
+    "test": "node scripts/platform-cli.mjs test",
+    "test:browser": "node scripts/run-browser-tests.mjs",
+    "format": "prettier --write packages services scripts tests compose.yaml README.md"
+  },
+  "devDependencies": {
+    "@babel/parser": "^7.28.0",
+    "@babel/traverse": "^7.28.0",
+    "@babel/generator": "^7.28.0",
+    "@babel/types": "^7.28.0",
+    "@playwright/test": "1.63.0",
+    "prettier": "3.9.9"
+  }
+}

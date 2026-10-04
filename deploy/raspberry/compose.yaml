@@ -1,0 +1,118 @@
+name: ames-errantes-pi
+x-app: &app
+  image: ${APP_IMAGE:?Version applicative manquante}
+  init: true
+  restart: unless-stopped
+  mem_limit: 512m
+  pids_limit: 256
+  security_opt: ["no-new-privileges:true"]
+  cap_drop: [ALL]
+  logging: &logging
+    driver: local
+    options: { max-size: "5m", max-file: "3" }
+  environment: &environment
+    DATABASE_URL: postgres://ames:${POSTGRES_PASSWORD:?Secret manquant}@db:5432/ames
+    COOKIE_SECURE: "false"
+    PUBLIC_SITE_URL: http://${PUBLIC_HOST}:4173
+    PUBLIC_SPACE_URL: http://${PUBLIC_HOST}:4174
+    NODE_OPTIONS: --max-old-space-size=320
+  volumes: &volumes
+    - app-data:/data
+    - /opt/ames-errantes/shared/backups:/data/backups
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+services:
+  db:
+    image: postgres:18-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650
+    restart: unless-stopped
+    mem_limit: 384m
+    pids_limit: 128
+    logging: *logging
+    environment:
+      POSTGRES_USER: ames
+      POSTGRES_DB: ames
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: --data-checksums
+    command: [postgres, -c, shared_buffers=64MB, -c, max_connections=60]
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U ames -d ames"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+  migrate:
+    <<: *app
+    restart: "no"
+    working_dir: /app
+    command: [node, packages/core/src/initialize.mjs]
+    depends_on:
+      db:
+        condition: service_healthy
+  site:
+    <<: *app
+    working_dir: /app/ame-errante
+    command:
+      [
+        node,
+        node_modules/next/dist/bin/next,
+        start,
+        --hostname,
+        0.0.0.0,
+        --port,
+        "3000",
+      ]
+    ports: ["${LAN_ADDRESS}:4173:3000"]
+    healthcheck: &web-health
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      start_period: 30s
+      interval: 30s
+      timeout: 5s
+      retries: 5
+  espace:
+    <<: *app
+    working_dir: /app/ames-errantes-interne
+    command:
+      [
+        node,
+        node_modules/next/dist/bin/next,
+        start,
+        --hostname,
+        0.0.0.0,
+        --port,
+        "3000",
+      ]
+    ports: ["${LAN_ADDRESS}:4174:3000"]
+    healthcheck: *web-health
+  worker:
+    <<: *app
+    mem_limit: 192m
+    working_dir: /app/ame-errante
+    command: [node, ../services/worker.mjs]
+    environment:
+      <<: *environment
+      RUN_MAINTENANCE_WORKER: "true"
+      NODE_OPTIONS: --max-old-space-size=128
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          --input-type=module,
+          -e,
+          'import {getDatabase} from ''@ames/core/database.mjs'';const db=getDatabase();try{const r=await db.query("SELECT value FROM maintenance WHERE key=''lastRun''");if(!r.rows[0]||Date.now()-Date.parse(r.rows[0].value)>180000)process.exitCode=1;}finally{await db.close();}',
+        ]
+      start_period: 90s
+      interval: 60s
+      timeout: 10s
+      retries: 3
+volumes:
+  postgres-data:
+  app-data:

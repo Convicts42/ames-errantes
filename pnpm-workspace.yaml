@@ -1,0 +1,7 @@
+packages:
+  - ame-errante
+  - ames-errantes-interne
+  - packages/*
+  - services/*
+minimumReleaseAgeExclude:
+  - lucide-react@1.52.0
