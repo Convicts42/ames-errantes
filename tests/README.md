@@ -28,7 +28,6 @@ Le navigateur est Chrome sous Windows et Chromium Playwright dans un conteneur d
 Ces scripts ne sont **pas** lancés par les tests ni par la CI :
 
 - `live-check.mjs` : contrôle ponctuel de l’ancienne migration locale ; dépend de fichiers privés et de nombres datés du 4 octobre 2026.
-- `services/mcp/verify-local.mjs` : ancien transport MCP Docker Desktop, remplacé par SSH.
 - `services/mcp/verify-raspberry.mjs` : contrôle du MCP distant en lecture seule.
 - `raspberry-check.mjs` : interface Raspberry réelle, compte privé et nombres attendus à la date de migration. Actualiser ces attentes après toute évolution métier volontaire.
 

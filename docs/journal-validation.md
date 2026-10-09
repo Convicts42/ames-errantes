@@ -25,7 +25,7 @@
 
 ## À terminer avec le Mac
 
-Le Mac n'était pas disponible ; la configuration a été volontairement reportée à la demande de l'utilisateur. Sa clé publique n'a pas encore été ajoutée et son compte ChatGPT n'est pas encore authentifié sur la Raspberry. La disponibilité des connexions SSH sur son compte Go reste à vérifier dans l'application. Le [guide Mac](ACCES-MAC.md) décrit ces étapes.
+Le Mac n'était pas disponible ; la configuration a été volontairement reportée à la demande de l'utilisateur. Sa clé publique n'a pas encore été ajoutée et son compte ChatGPT n'est pas encore authentifié sur la Raspberry. La disponibilité des connexions SSH sur son compte Go reste à vérifier dans l'application. Le [guide Mac](acces-mac.md) décrit ces étapes.
 
 L'accès reste limité au réseau domestique. Les builds natifs prennent plusieurs minutes sur cette Raspberry 2 Go et sa carte mémoire ; surveiller l'espace disponible avec `pnpm status`. Le redémarrage complet de l'OS n'a pas été testé pendant cette intervention.
 
@@ -62,7 +62,7 @@ L'accès reste limité au réseau domestique. Les builds natifs prennent plusieu
 - Les 10 tests PostgreSQL passent directement sur ARM64, dans des bases temporaires : sauvegarde/restauration réelle, écritures MCP, conflits, audit, migration, comptes et confidentialité. Aucun document de test ajouté à la base active.
 - MCP Codex configuré sur SSH, et protocole réellement testé depuis Windows : 18 outils, lecture du projet et d’un document sur la Raspberry. PROGRAMDATA ajouté à l’environnement du transport, requis par OpenSSH Windows. Aucune clé privée copiée sur la Raspberry.
 - Le workflow de mise à jour a été exécuté de bout en bout : construction et 10 tests PostgreSQL sur PC, parcours Chrome QA complet et 18 pages publiques, construction ARM64, transfert SSH, sauvegarde avant mise à jour, contrôles de santé, activation et conservation de la version précédente. Le scénario d’échec déclenchant le retour arrière automatique n’a pas été provoqué.
-- Sauvegarde quotidienne prévue par le worker, 14 dernières conservées sur la Raspberry. Sauvegardes distantes réellement créées et copies sur PC vérifiées dans data/backups-raspberry, dont ames-auto-2026-10-04T20-56-53-897Z.dump. La copie vers le PC est manuelle via Sauvegarder.cmd.
+- Sauvegarde quotidienne prévue par le worker, 14 dernières conservées sur la Raspberry. Sauvegardes distantes réellement créées et copies sur PC vérifiées dans data/backups-raspberry, dont ames-auto-2026-10-04T20-56-53-897Z.dump. La copie vers le PC est manuelle via pc/Sauvegarder.cmd.
 - Dernier relevé : environ 497 Mo de mémoire utilisés sur 1,8 Gio, 1,3 Gio disponibles, aucun swap utilisé, 21 Go de disque disponibles. Ces mesures correspondent à cette petite base et ne constituent pas un test de charge.
 - Les services locaux de l’ancienne plateforme sont tous arrêtés ; leurs volumes sont conservés. Les raccourcis et scripts de démarrage/sauvegarde pilotent maintenant la Raspberry.
 

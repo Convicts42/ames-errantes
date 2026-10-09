@@ -4,7 +4,7 @@
 
 Le dépôt principal est `/home/convicts/projets/ames-errantes` sur la Raspberry. Le projet SSH ChatGPT du responsable technique pointe sur ce dossier. Il réunit le code des deux sites, le cœur partagé, le MCP, les tests et les commandes de déploiement. Les deux historiques originaux sont conservés.
 
-`D:\site` est une copie de secours sur le PC. Ne pas y poursuivre des modifications concurrentes sans synchronisation Git. Depuis le PC, `git fetch raspberry` puis `git merge --ff-only raspberry/main` récupèrent le travail validé. Un refus de fusion signale une divergence à examiner, pas une raison d'écraser l'une des copies.
+Le dépôt GitHub privé `Convicts42/ames-errantes` sert aux branches et aux PR, vérifiées par `.github/workflows/verify.yml`. Une PR fusionnée se récupère sur la Raspberry par `git pull --ff-only`. `D:\ame-errante` est une copie de secours sur le PC, à synchroniser de la même façon. Ne pas y poursuivre des modifications concurrentes. Un refus de fusion signale une divergence à examiner, pas une raison d'écraser l'une des copies.
 
 | Dossier                 | Responsabilité                                      |
 | ----------------------- | --------------------------------------------------- |
@@ -43,7 +43,7 @@ pnpm deploy:activate
 
 La préparation refuse un arbre Git sale, construit et teste l'image native, vérifie que le code et l'image n'ont pas changé, archive le commit et écrit une fiche de version. L'activation vérifie ce résultat, crée une sauvegarde de production puis attend la santé des services. `pnpm deploy` enchaîne les deux. La base n'est jamais écrasée ; un retour applicatif ne constitue pas un retour de migration SQL.
 
-Ne pas lancer plusieurs préparations ou suites QA en parallèle. Après interruption, vérifier les processus avant de retirer un verrou dans `data`. Ne jamais supprimer de volume pour résoudre un problème de test. Les contrôles GitHub Actions sont prêts, mais aucun hébergement GitHub n'est configuré.
+Ne pas lancer plusieurs préparations ou suites QA en parallèle. Après interruption, vérifier les processus avant de retirer un verrou dans `data`. Ne jamais supprimer de volume pour résoudre un problème de test. Les contrôles GitHub Actions tournent sur chaque PR.
 
 `pnpm start`, `pnpm stop`, `pnpm status` et `pnpm backup` pilotent la production depuis la Raspberry. La procédure SSH Windows reste un accès de maintenance ; elle ne remplace pas le dépôt principal distant.
 

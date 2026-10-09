@@ -1,6 +1,6 @@
 # Plateforme Âmes errantes
 
-- Point de travail principal : `/home/convicts/projets/ames-errantes` sur la Raspberry. Code commun, deux interfaces, données partagées dans PostgreSQL. `D:\site` est une copie de secours à synchroniser par Git, pas une source concurrente.
+- Point de travail principal : `/home/convicts/projets/ames-errantes` sur la Raspberry. Code commun, deux interfaces, données partagées dans PostgreSQL. Le dépôt GitHub privé `Convicts42/ames-errantes` reçoit les branches et PR vérifiées par la CI ; `D:\ame-errante` est une copie de secours sur le PC. Toutes les copies se synchronisent par Git en avance rapide uniquement.
 - Le même projet SSH sert au travail associatif via MCP et au développement du logiciel. Lire `README.md` et `CONTRIBUTING.md` selon la tâche.
 - Toute l'administration, la connexion et les comptes appartiennent à `ames-errantes-interne`. Ne pas réintroduire `/admin` ou `/api/admin/*` sur le site public ni exposer les brouillons/photos privées.
 - Pour lire/modifier les contenus métier, utiliser le MCP `ames-errantes`. Lire la version actuelle, conserver les réserves et vérifier le résultat. Ne pas écrire directement en base ni dupliquer les dossiers dans des fichiers, Spaces ou SQLite.
