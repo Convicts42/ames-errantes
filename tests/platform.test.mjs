@@ -21,9 +21,7 @@ import { applyWebhook } from "../packages/core/src/site/notifications.mjs";
 import { createBackup } from "../packages/core/src/site/maintenance.mjs";
 import { readPhoto } from "../packages/core/src/site/media.mjs";
 import { consumeRate } from "../packages/core/src/rate-limit.mjs";
-import { importSqliteExport } from "../packages/core/src/legacy-import.mjs";
 import { mcpClient } from "../services/mcp/test-client.mjs";
-import { legacyFixture } from "./fixtures/legacy.mjs";
 const user = { name: "Équipe test" };
 const document = {
   title: "Refuge test",
@@ -325,57 +323,6 @@ test("Requests are idempotent under concurrency; STOP and privacy deletion use J
     );
     assert.ok(!audit.includes(contact.email));
     assert.ok(!audit.includes("Privé"));
-  }));
-
-test("A synthetic SQLite export preserves documents and history without replacing data", () =>
-  isolatedDatabase(async (db) => {
-    const source = legacyFixture();
-    const result = await importSqliteExport(source, db);
-    assert.equal(result.counts.documents, source.workspace.documents.length);
-    assert.equal(result.counts.revisions, source.workspace.revisions.length);
-    for (const d of source.workspace.documents) {
-      const row = (
-        await db.query("SELECT * FROM documents WHERE id=$1", [d.id])
-      ).rows[0];
-      for (const key of [
-        "html",
-        "title",
-        "version",
-        "source_id",
-        "imported_markdown",
-      ])
-        assert.equal(row[key], d[key]);
-      for (const expected of source.workspace.revisions.filter(
-        (r) => r.document_id === d.id,
-      )) {
-        const actual = await docs.getRevision(d.id, expected.id, db);
-        assert.equal(actual.version, expected.version);
-        assert.equal(actual.html, expected.html);
-      }
-    }
-    assert.equal((await importSqliteExport(source, db)).alreadyImported, true);
-    await assert.rejects(
-      importSqliteExport({ ...source, changed: true }, db),
-      /sans écrasement/,
-    );
-    assert.equal(
-      (await site.listAnimals({ admin: true }, db)).length,
-      source.site.animals.length,
-    );
-    const d = await docs.createDocument(document, user, db);
-    assert.equal((await docs.listRevisions(d.id, db)).length, 1);
-  }));
-
-test("A failed import rolls back accounts, content and history", () =>
-  isolatedDatabase(async (db) => {
-    const source = legacyFixture();
-    source.workspace.documents[0].invalid_column = "bad";
-    await assert.rejects(importSqliteExport(source, db));
-    for (const table of ["users", "animals", "documents", "audit_events"])
-      assert.equal(
-        (await db.query(`SELECT count(*) AS n FROM ${table}`)).rows[0].n,
-        0,
-      );
   }));
 
 test("A PostgreSQL dump really restores content and revision history", () =>

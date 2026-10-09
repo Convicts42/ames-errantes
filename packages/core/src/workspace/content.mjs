@@ -1,5 +1,4 @@
 import sanitize from "sanitize-html";
-import { marked } from "marked";
 import { AppError } from "./errors.mjs";
 
 export function cleanHtml(value) {
@@ -57,11 +56,4 @@ export function plainText(html) {
     .replace(/&nbsp;/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-}
-export function importMarkdown(markdown, mapping) {
-  const local = markdown.replace(
-    /https:\/\/chatgpt\.com\/space\/(page_[a-z0-9]+)/g,
-    (url, id) => (mapping.get(id) ? `/dossiers/${mapping.get(id)}` : url),
-  );
-  return cleanHtml(marked.parse(local, { gfm: true, breaks: false }));
 }
