@@ -9,7 +9,7 @@ import * as docs from "@ames/core/workspace/store.mjs";
 
 // Même périmètre que le profil MCP « documents » : documents et points à
 // suivre uniquement, sans publication, réglages, demandes ni comptes.
-const model = "claude-opus-5-5";
+const model = "claude-sonnet-5-5";
 const conversations = new Map();
 const lifetime = 2 * 60 * 60 * 1000;
 const maximumConversations = 50;
