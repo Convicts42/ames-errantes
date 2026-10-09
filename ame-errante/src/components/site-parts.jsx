@@ -43,7 +43,7 @@ export function IconDefinitions() {
 }
 export function Brand() {
   return (
-    <Link href="/" className="brand" aria-label="Âme Errante, accueil">
+    <Link href="/" className="brand" aria-label="Âmes errantes, accueil">
       <span className="brand-mark">
         <svg className="brand-heart" aria-hidden="true">
           <use href="#heart" />
@@ -53,10 +53,8 @@ export function Brand() {
         </svg>
       </span>
       <span>
-        <span className="brand-name">{"ÂME ERRANTE"}</span>
-        <span className="brand-caption">
-          {"Association de protection animale"}
-        </span>
+        <span className="brand-name">{"Âmes errantes"}</span>
+        <span className="brand-caption">{"Protection animale"}</span>
       </span>
     </Link>
   );
@@ -66,7 +64,7 @@ export function Footer({ settings }) {
     <footer className="site-footer">
       <div className="shell footer-top">
         <div>
-          <Link href="/" className="brand" aria-label="Âme Errante, accueil">
+          <Link href="/" className="brand" aria-label="Âmes errantes, accueil">
             <span className="brand-mark">
               <svg className="brand-heart" aria-hidden="true">
                 <use href="#heart" />
@@ -76,10 +74,8 @@ export function Footer({ settings }) {
               </svg>
             </span>
             <span>
-              <span className="brand-name">{"ÂME ERRANTE"}</span>
-              <span className="brand-caption">
-                {"Association de protection animale"}
-              </span>
+              <span className="brand-name">{"Âmes errantes"}</span>
+              <span className="brand-caption">{"Protection animale"}</span>
             </span>
           </Link>
           <p>
@@ -108,7 +104,7 @@ export function Footer({ settings }) {
         </span>
       </div>
       <div className="shell footer-bottom">
-        <span>{"Âme Errante · Chaque âme mérite un foyer."}</span>
+        <span>{"Âmes errantes · Chaque âme mérite un foyer."}</span>
         <Link href="/mentions-legales">Mentions légales</Link>
         <Link href="/confidentialite">Données personnelles</Link>
         {!settings?.legalName && <span>Site en préparation</span>}

@@ -4,7 +4,7 @@ export default function PageContent() {
     <>
       <div className="page-intro shell">
         <div>
-          <span className="eyebrow">{"LE JOURNAL D’ÂME ERRANTE"}</span>
+          <span className="eyebrow">{"LE JOURNAL D’ÂMES ERRANTES"}</span>
           <h1>
             {"Une belle vie ensemble,"}
             <br />

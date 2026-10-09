@@ -1,10 +1,11 @@
+import "@ames/core/styles/tokens.css";
 import "../styles/globals.css";
 import "../styles/profiles.css";
 import { IconDefinitions } from "../components/site-parts";
 export const metadata = {
   title: {
-    default: "Âme Errante",
-    template: "%s — Âme Errante",
+    default: "Âmes errantes",
+    template: "%s — Âmes errantes",
   },
   description: "Chaque âme mérite un foyer. Association de protection animale.",
 };
