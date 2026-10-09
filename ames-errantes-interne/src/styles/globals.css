@@ -2289,3 +2289,47 @@ svg {
 .site-management .plain-fieldset p {
   margin: 12px 0;
 }
+.assistant-messages {
+  display: grid;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+  margin: 15px 0;
+}
+.assistant-message {
+  max-width: 85%;
+  padding: 12px 15px;
+  border-radius: 12px;
+  background: var(--green-light);
+}
+.assistant-message.user {
+  justify-self: end;
+  background: var(--sand);
+}
+.assistant-message p {
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+.assistant-message .text-button {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  text-align: left;
+}
+.assistant-form {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+.assistant-form textarea {
+  flex: 1;
+}
+@media (max-width: 760px) {
+  .assistant-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .assistant-message {
+    max-width: 100%;
+  }
+}

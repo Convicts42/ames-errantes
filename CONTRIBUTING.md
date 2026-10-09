@@ -61,7 +61,9 @@ Installation administrative : `sudo bash deploy/raspberry/setup-documents-user.s
 - **Sur la Raspberry** : installer Claude Code dans le compte `convicts` (`curl -fsSL https://claude.ai/install.sh | bash`), puis, depuis le dépôt de travail, `claude mcp add ames-errantes -- bash /opt/ames-errantes/current/deploy/raspberry/amesctl.sh mcp`. `CLAUDE.md` charge les consignes d'`AGENTS.md`.
 - **Depuis le PC** : Claude Desktop ou Claude Code peuvent lancer le MCP complet par SSH, avec la commande `ssh -T convicts@192.168.1.153 bash /opt/ames-errantes/current/deploy/raspberry/amesctl.sh mcp`.
 
-Les modifications faites par l'IA sont attribuées à « IA · Claude » dans l'historique (« IA · ames-documents » pour le profil documentaire).
+- **Dans l'intranet** : la page « Activité & Claude » contient un assistant qui lit et modifie les documents et les points à suivre, avec le même périmètre que le profil documentaire (pas de publication, de site ni de comptes). Il appelle l'API Claude avec une clé Anthropic payée à l'usage (console.anthropic.com), distincte des abonnements claude.ai. Pour l'activer, ajouter `ANTHROPIC_API_KEY=...` dans `/opt/ames-errantes/shared/.env` sur la Raspberry puis relancer la version active ; sans clé, la page indique que l'assistant n'est pas configuré. Modèle `claude-opus-5-5`, avec le repli automatique d'Anthropic (`fallbacks: "default"`) si une demande est refusée. Limite : 60 messages par heure et par personne ; les conversations restent en mémoire du serveur pendant deux heures.
+
+Les modifications faites par l'IA sont attribuées à « IA · Claude » dans l'historique (« IA · ames-documents » pour le profil documentaire, « IA · Claude pour <nom> » pour l'assistant de l'intranet).
 
 ## Données et sauvegardes
 

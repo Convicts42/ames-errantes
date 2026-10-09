@@ -89,6 +89,9 @@ services:
         --port,
         "3000",
       ]
+    environment:
+      <<: *environment
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
     ports: ["${LAN_ADDRESS}:4174:3000"]
     healthcheck: *web-health
   worker:
