@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { categories } from "../shared/project";
+import { categories } from "@ames/core/shared/project.js";
 import { api } from "./api";
 import { Login, Brand } from "./login";
 import { Icon } from "./icons";

@@ -1,4 +1,4 @@
-import { getPage } from "../data/pages";
+import { getPage } from "@ames/core/data/pages.js";
 import { PageFrame } from "../components/page-frame";
 import Home from "../components/pages/index";
 const page = getPage("index");

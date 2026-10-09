@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { animalStatuses } from "../data/form-options";
+import { animalStatuses } from "@ames/core/data/form-options.js";
 
 const filters = [
   ["tous", "Tous les compagnons"],

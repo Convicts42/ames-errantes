@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { getPage } from "../../data/pages";
+import { getPage } from "@ames/core/data/pages.js";
 import { getAnimal } from "@ames/core/site/repository.mjs";
 import { AnimalProfile } from "../../components/animal-profile";
 import { PageFrame } from "../../components/page-frame";

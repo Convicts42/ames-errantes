@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { categories, documentStatuses } from "../shared/project";
+import { categories, documentStatuses } from "@ames/core/shared/project.js";
 import { api, dateLabel, timeLabel } from "./api";
 import { Icon } from "./icons";
 import { Dialog } from "./dialog";
