@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import { pages } from "./src/data/pages.js";
+import { pages } from "@ames/core/data/pages.js";
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

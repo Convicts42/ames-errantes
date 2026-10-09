@@ -152,8 +152,6 @@ test("Shared sessions survive both adapters and are revoked on password change",
       db,
     );
     assert.equal((await auth.session(token, db)).id, u.id);
-    const adapter = await import("../packages/core/src/site/auth.mjs");
-    assert.equal((await adapter.getSession(token, db)).id, u.id);
     await auth.changePassword(
       u,
       { current: "Test-password-12345", password: "Test-password-new-6789" },

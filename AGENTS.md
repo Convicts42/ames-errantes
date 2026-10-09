@@ -12,5 +12,5 @@
 - Raspberry 2 Go : travail séquentiel, un worker de compilation. Ne pas lancer plusieurs builds ou QA concurrents.
 - Livrer : commit propre, `pnpm deploy:prepare`, puis `pnpm deploy:activate` lorsqu'une mise en service est demandée. `pnpm deploy` enchaîne les deux. Ne jamais modifier directement les releases sous `/opt/ames-errantes`.
 - Ne jamais supprimer de volumes, écraser une base active ou relancer l'import initial. Les migrations passent par le service migrate ; un retour de version applicative n'annule pas une migration de schéma.
-- Les commandes start/stop/backup/status pilotent la production sur la Raspberry. L'ancien Compose racine et les données du PC restent historiques ; les tests utilisent uniquement le projet QA.
+- Les commandes start/stop/backup/status pilotent la production sur la Raspberry ; les tests utilisent uniquement le projet QA. Les données présentes sur le PC sont des copies de sauvegarde, jamais une source de travail.
 - Les secrets et exports privés restent hors de Git et des images. Conserver une copie des sauvegardes et du code sur le PC ou un autre support.

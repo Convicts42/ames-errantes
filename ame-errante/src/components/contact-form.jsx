@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { subjects } from "../data/form-options";
+import { subjects } from "@ames/core/data/form-options.js";
 import { QueryPreset } from "./query-preset";
 import { copyMessage } from "./copy-message";
 import { api, submissionKey } from "./api-client";

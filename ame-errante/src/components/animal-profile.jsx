@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Dialog, PortraitLink } from "./dialog";
-import { animalStatuses } from "../data/form-options";
+import { animalStatuses } from "@ames/core/data/form-options.js";
 export function AnimalProfile({ animal }) {
   const available = animal.status === "available";
   return (

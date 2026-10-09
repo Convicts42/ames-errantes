@@ -1,5 +1,5 @@
 "use client";
-import { categories } from "../shared/project";
+import { categories } from "@ames/core/shared/project.js";
 import { Icon } from "./icons";
 import { Status } from "./documents";
 import { dateLabel } from "./api";

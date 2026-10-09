@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { taskStatuses } from "../shared/project";
+import { taskStatuses } from "@ames/core/shared/project.js";
 import { api } from "./api";
 import { Icon } from "./icons";
 import { Dialog } from "./dialog";
