@@ -1,8 +1,7 @@
 **/node_modules
 **/.next
 **/.git
-**/.codex
-**/.agents
+**/.claude
 **/.env*
 /data
 /ame-errante/data

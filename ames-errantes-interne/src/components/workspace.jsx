@@ -266,7 +266,7 @@ export function Workspace() {
             onClick={() => navigate("/activite")}
           >
             <Icon name="history" />
-            Activité & Codex
+            Activité & Claude
           </button>
           <a
             className="nav-item"
@@ -324,7 +324,7 @@ export function Workspace() {
                     : pathname === "/gestion"
                       ? "Animaux & demandes"
                       : pathname === "/activite"
-                        ? "Activité & Codex"
+                        ? "Activité & Claude"
                         : categories.find((c) => c.id === activeCategory)
                             ?.label || "Dossiers"}
             </strong>

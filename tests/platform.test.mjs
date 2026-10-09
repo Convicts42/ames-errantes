@@ -382,7 +382,7 @@ test("Real MCP stdio: edits, conflict protection, history, actor and restricted 
       const changed = await call("document_update", {
         id: d.id,
         version: d.version,
-        patch: { html: "<p>Modifié par Codex</p>" },
+        patch: { html: "<p>Modifié par Claude</p>" },
       });
       assert.equal(changed.error, false);
       assert.equal(changed.data.version, 2);
@@ -401,7 +401,7 @@ test("Real MCP stdio: edits, conflict protection, history, actor and restricted 
         (await call("document_read", { id: d.id })).data.publication,
         null,
       );
-      assert.equal((await call("activity_read")).data[0].actor, "IA · Codex");
+      assert.equal((await call("activity_read")).data[0].actor, "IA · Claude");
       const settings = (await call("settings_read")).data;
       assert.equal(
         (

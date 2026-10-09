@@ -11,12 +11,12 @@ Les données sont dans PostgreSQL sur la Raspberry. L'IA les lit et les modifie 
 
 ## Accès IA
 
-| Compte                                 | Dossier sur la Raspberry                     | Accès                                     |
+| Compte                                 | Outil                                        | Accès                                     |
 | -------------------------------------- | -------------------------------------------- | ----------------------------------------- |
-| Responsable technique (`convicts`)     | `/home/convicts/projets/ames-errantes`       | Code, documents et administration via MCP |
-| Équipe documentaire (`ames-documents`) | `/home/ames-documents/projets/ames-errantes` | Documents et tâches via un MCP restreint  |
+| Responsable technique (`convicts`)     | Claude Code (Raspberry, PC) et claude.ai     | Code, documents et administration via MCP |
+| Équipe documentaire (`ames-documents`) | Claude Desktop sur le Mac, MCP lancé par SSH | Documents et tâches via un MCP restreint  |
 
-Chaque personne a son propre compte et sa propre clé SSH. Le compte documentaire n'est membre ni de Docker ni de sudo. Le [guide Mac](docs/acces-mac.md) décrit sa première connexion.
+Chaque personne utilise son propre compte Claude et sa propre clé SSH. Les clés du compte documentaire ne peuvent lancer que le MCP documentaire. Le [guide Mac](docs/acces-mac.md) décrit sa première connexion.
 
 ## Organisation du dépôt
 

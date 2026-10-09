@@ -21,7 +21,7 @@ export function createServer(db = getDatabase(), options = {}) {
   if (!["full", "documents"].includes(profile))
     throw new Error("Profil MCP inconnu.");
   const actor = {
-    name: options.actor || process.env.AMES_MCP_ACTOR || "IA · Codex",
+    name: options.actor || process.env.AMES_MCP_ACTOR || "IA · Claude",
   };
   if (actor.name.length > 150 || /[\r\n]/.test(actor.name))
     throw new Error("Acteur MCP invalide.");

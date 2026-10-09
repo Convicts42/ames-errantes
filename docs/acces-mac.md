@@ -1,61 +1,81 @@
 # Travailler sur les documents depuis le Mac
 
-## Ce qui est prêt
+## Principe
 
-La Raspberry héberge les dossiers communs et un compte personnel réservé aux documents : `ames-documents`. Le connecteur IA et Codex sont installés. La connexion du Mac et l'authentification ChatGPT restent à faire lorsque le Mac sera disponible.
+La Raspberry héberge les dossiers communs. Sur le Mac, l'application **Claude Desktop**, ouverte avec le compte Claude personnel de ta mère, lance le connecteur `ames-errantes` à travers SSH. La clé SSH du Mac ne peut rien faire d'autre que lancer ce connecteur documentaire : pas de shell, pas de Docker, pas de publication.
 
-Utiliser le même réseau domestique que la Raspberry. Aucune ouverture Internet n'est nécessaire. Le compte ChatGPT de chaque personne reste personnel ; les dossiers sont partagés, pas les conversations ni les abonnements.
+Le Mac doit être sur le même réseau domestique que la Raspberry. Aucune ouverture Internet n'est nécessaire. Chaque personne garde son propre compte Claude : les dossiers sont partagés, pas les conversations ni les abonnements.
 
-## 1. Vérifier l'application
-
-Ouvrir l'application ChatGPT sur le Mac avec le compte de ta mère et rechercher **Paramètres → Connexions → SSH**. Si cette rubrique est absente, relever la version et le message affiché avant de changer d'abonnement.
-
-La documentation annonce Codex dans Go, avec un déploiement progressif. Elle ne confirme pas clairement l'accès SSH pour chaque compte Go : il reste à le vérifier sur son Mac. Sources : [offres et disponibilité](https://learn.chatgpt.com/docs/pricing) et [connexions SSH](https://learn.chatgpt.com/docs/remote-connections).
-
-## 2. Créer sa clé, une seule fois
+## 1. Créer sa clé, une seule fois
 
 Ouvrir Terminal sur le Mac et saisir :
 
 ```sh
-mkdir -p ~/.ssh
-chmod 700 ~/.ssh
+mkdir -p ~/.ssh && chmod 700 ~/.ssh
 ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_ames -C ames-documents
+ssh-add --apple-use-keychain ~/.ssh/id_ed25519_ames
 ```
 
-Choisir une phrase de protection lorsque demandée. Si une clé existe déjà à ce nom, répondre **non** à l'écrasement et demander de l'aide.
+Choisir une phrase de protection lorsque demandée ; la dernière commande la range dans le trousseau du Mac pour que Claude Desktop puisse utiliser la clé. Si une clé existe déjà à ce nom, répondre **non** à l'écrasement et demander de l'aide.
 
-Puis afficher sa partie publique :
+Afficher ensuite sa partie publique et la transmettre au responsable technique :
 
 ```sh
 cat ~/.ssh/id_ed25519_ames.pub
 ```
 
-Transmettre cette unique ligne au responsable du projet ou à Codex dans la conversation de configuration. Elle commence par `ssh-ed25519`. Codex l'ajoutera à l'accès `ames-documents` de la Raspberry. Le fichier sans `.pub` reste exclusivement sur le Mac.
+Cette ligne commence par `ssh-ed25519`. Le fichier sans `.pub` reste exclusivement sur le Mac.
 
-## 3. Ajouter sa connexion
+## 2. Autoriser la clé sur la Raspberry (responsable technique)
 
-Après l'ajout de la clé publique sur la Raspberry, renseigner dans l'application :
+```sh
+sudo bash deploy/raspberry/add-documents-key.sh "ssh-ed25519 AAAA… ames-documents"
+```
 
-| Champ                     | Valeur                                     |
-| ------------------------- | ------------------------------------------ |
-| Nom de connexion          | Âmes errantes — documents                  |
-| Hôte                      | 192.168.1.153                              |
-| Port                      | 22                                         |
-| Utilisateur               | ames-documents                             |
-| Fichier d'identité        | /Users/SON_NOM_MAC/.ssh/id_ed25519_ames    |
-| Dossier du projet distant | /home/ames-documents/projets/ames-errantes |
+La clé est enregistrée avec `restrict` et une commande imposée : elle lance uniquement `/usr/local/libexec/ames-documents-mcp`.
 
-Remplacer `SON_NOM_MAC` par le nom de session du Mac. Dans Terminal, `echo "$HOME/.ssh/id_ed25519_ames"` affiche le chemin exact. Le fichier d'identité est la clé privée locale, sans `.pub` ; la sélectionner n'implique pas de l'envoyer au serveur.
+## 3. Déclarer la Raspberry dans SSH
 
-Connecter Codex sur cette machine distante avec **son propre compte ChatGPT**, en suivant la connexion proposée par l'application. Si l'application ne la propose pas, le responsable peut guider la commande `codex login --device-auth` dans la session SSH de ce compte. Ne pas utiliser le compte `convicts` ni copier ses identifiants.
+Ajouter à la fin de `~/.ssh/config` sur le Mac (créer le fichier s'il n'existe pas) :
 
-## 4. Vérifier ensemble
+```
+Host ames-documents
+  HostName 192.168.1.153
+  User ames-documents
+  IdentityFile ~/.ssh/id_ed25519_ames
+  IdentitiesOnly yes
+  UseKeychain yes
+  AddKeysToAgent yes
+```
 
-Dans une nouvelle conversation du projet distant, demander :
+Puis vérifier une fois dans Terminal avec `ssh ames-documents` et accepter l'empreinte du serveur. La commande reste ouverte sans rien afficher : c'est le connecteur qui attend. Quitter avec `Ctrl+C`.
+
+## 4. Connecter Claude Desktop
+
+Dans Claude Desktop : **Réglages → Développeur → Modifier la configuration**, puis mettre dans `claude_desktop_config.json` :
+
+```json
+{
+  "mcpServers": {
+    "ames-errantes": {
+      "command": "/usr/bin/ssh",
+      "args": ["-T", "-o", "BatchMode=yes", "ames-documents"]
+    }
+  }
+}
+```
+
+Quitter complètement puis rouvrir Claude Desktop. Le connecteur `ames-errantes` doit apparaître avec 9 outils.
+
+Créer ensuite un projet Claude « Âmes errantes — documents » et coller dans ses instructions le contenu de [`deploy/raspberry/documents-instructions.md`](../deploy/raspberry/documents-instructions.md).
+
+## 5. Vérifier ensemble
+
+Dans une conversation du projet, demander :
 
 > Utilise le connecteur ames-errantes pour lister nos dossiers et les points à suivre. Ne modifie rien pour cette première vérification.
 
-Comparer la liste avec l'[intranet](http://192.168.1.153:4174). Un projet connecté doit lire les données réelles ; si le connecteur n'apparaît pas, reconnecter la session et demander de l'aide avant de créer des copies.
+Comparer la liste avec l'[intranet](http://192.168.1.153:4174). Si le connecteur n'apparaît pas, vérifier `ssh ames-documents` dans Terminal et demander de l'aide avant de créer des copies.
 
 ## Au quotidien
 
@@ -65,4 +85,4 @@ Comparer la liste avec l'[intranet](http://192.168.1.153:4174). Un projet connec
 
 L'IA lit la version courante avant chaque modification. L'historique conserve les changements ; une modification concurrente provoque un conflit à résoudre après relecture. Publier sur le site et modifier le logiciel restent réservés au responsable technique.
 
-Le compte de l'intranet, si utilisé, est distinct du compte SSH et de ChatGPT : il devra également être personnel. La connexion ChatGPT n'ouvre pas automatiquement une session dans l'intranet.
+Le compte de l'intranet, si utilisé, est distinct de la clé SSH et du compte Claude : il devra également être personnel.
