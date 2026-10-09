@@ -24,7 +24,7 @@ import {
   listUsers,
   changePassword,
   sessionSeconds,
-} from "../../../../server/auth.mjs";
+} from "@ames/core/auth.mjs";
 import {
   listDocuments,
   searchDocuments,
@@ -37,10 +37,9 @@ import {
   listTasks,
   saveTask,
   exportProject,
-} from "../../../../server/store.mjs";
-import { getDatabase } from "../../../../server/database.mjs";
-import { maybeBackup } from "../../../../server/backup.mjs";
-import { AppError } from "../../../../server/errors.mjs";
+} from "@ames/core/workspace/store.mjs";
+import { getDatabase } from "@ames/core/database.mjs";
+import { AppError } from "@ames/core/workspace/errors.mjs";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const GET = endpoint(async (request, { params }) => {
@@ -52,7 +51,6 @@ export const GET = endpoint(async (request, { params }) => {
       setupRequired: !(await hasUsers()),
     });
   const user = await requireUser(request);
-  void maybeBackup();
   if (route === "overview")
     return json({
       siteUrl: process.env.PUBLIC_SITE_URL || "http://localhost:4173",

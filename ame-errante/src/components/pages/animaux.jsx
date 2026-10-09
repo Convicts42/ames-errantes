@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Catalog } from "../catalog";
-import { listAnimals } from "../../server/repository.mjs";
+import { listAnimals } from "@ames/core/site/repository.mjs";
 export default async function PageContent() {
   return (
     <>

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { getPage } from "../../data/pages";
-import { getAnimal } from "../../server/repository.mjs";
+import { getAnimal } from "@ames/core/site/repository.mjs";
 import { AnimalProfile } from "../../components/animal-profile";
 import { PageFrame } from "../../components/page-frame";
 import Association from "../../components/pages/association";

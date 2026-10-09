@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { publicSettings } from "../../server/settings.mjs";
-import { whatsappAvailable } from "../../server/notifications.mjs";
-import { listAnimals } from "../../server/repository.mjs";
+import { publicSettings } from "@ames/core/site/settings.mjs";
+import { whatsappAvailable } from "@ames/core/site/notifications.mjs";
+import { listAnimals } from "@ames/core/site/repository.mjs";
 import { ContactForm } from "../contact-form";
 import { PracticalInfo } from "../practical-info";
 export async function LegalPage() {

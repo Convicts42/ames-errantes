@@ -1,6 +1,6 @@
 import { withActor, setActor } from "@ames/core/database.mjs";
-import { AppError } from "./errors.mjs";
-import { session, cookieName } from "./auth.mjs";
+import { AppError } from "@ames/core/workspace/errors.mjs";
+import { session, cookieName } from "@ames/core/auth.mjs";
 export function json(data, status = 200, headers = {}) {
   return Response.json(data, {
     status,
