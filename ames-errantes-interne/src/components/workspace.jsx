@@ -16,6 +16,7 @@ import { Tasks } from "./tasks";
 import { Account } from "./account";
 import { Dialog } from "./dialog";
 import { Management, Activity } from "./management";
+import { Assistant } from "./assistant";
 
 export function Workspace() {
   const [user, setUser] = useState(null),
@@ -176,6 +177,20 @@ export function Workspace() {
   const activeCategory = id
     ? data?.documents.find((d) => d.id === id)?.category
     : category;
+  const pageLabel =
+    pathname === "/"
+      ? "Vue d’ensemble"
+      : pathname === "/suivi"
+        ? "Points à suivre"
+        : pathname === "/compte"
+          ? "Mon compte"
+          : pathname === "/gestion"
+            ? "Animaux & demandes"
+            : pathname === "/activite"
+              ? "Activité & Claude"
+              : categories.find((c) => c.id === activeCategory)?.label ||
+                "Dossiers";
+  const openDocument = id && data?.documents.find((d) => d.id === id);
   const publicAddress = new URL(data?.siteUrl || "http://localhost:4173");
   if (
     typeof window !== "undefined" &&
@@ -314,20 +329,7 @@ export function Workspace() {
             <Icon name="home" size={16} />
             <span>Notre espace</span>
             <Icon name="chevron" size={13} />
-            <strong>
-              {pathname === "/"
-                ? "Vue d’ensemble"
-                : pathname === "/suivi"
-                  ? "Points à suivre"
-                  : pathname === "/compte"
-                    ? "Mon compte"
-                    : pathname === "/gestion"
-                      ? "Animaux & demandes"
-                      : pathname === "/activite"
-                        ? "Activité & Claude"
-                        : categories.find((c) => c.id === activeCategory)
-                            ?.label || "Dossiers"}
-            </strong>
+            <strong>{pageLabel}</strong>
           </div>
           <div className="topbar-actions">
             <button
@@ -402,7 +404,7 @@ export function Workspace() {
           ) : pathname === "/gestion" ? (
             <Management user={user} siteUrl={siteUrl} />
           ) : pathname === "/activite" ? (
-            <Activity navigate={navigate} onChanged={refresh} />
+            <Activity />
           ) : pathname === "/compte" ? (
             <Account
               user={user}
@@ -430,6 +432,22 @@ export function Workspace() {
           </footer>
         </main>
       </div>
+      <Assistant
+        navigate={navigate}
+        onChanged={refresh}
+        isDirty={() => dirty.current}
+        context={{
+          path: pathname,
+          page: pageLabel,
+          document: openDocument
+            ? {
+                id: openDocument.id,
+                title: openDocument.title,
+                category: openDocument.category,
+              }
+            : null,
+        }}
+      />
       {creating && (
         <CreateDocument
           category={creating}

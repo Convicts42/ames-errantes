@@ -36,6 +36,28 @@ function call(method, path, payload, timeout) {
   });
 }
 
+// La page ouverte vient de l'interface du responsable : elle situe la demande
+// (« ce document ») sans remplacer ses consignes.
+function describeContext(context) {
+  if (!context || typeof context !== "object") return "";
+  const clean = (value, size) =>
+    typeof value === "string"
+      ? value.replace(/[\r\n[\]]/g, " ").slice(0, size)
+      : "";
+  const page = clean(context.page, 80),
+    d =
+      context.document && typeof context.document === "object"
+        ? context.document
+        : null;
+  const lines = [];
+  if (page) lines.push(`Page ouverte dans l’intranet : ${page}.`);
+  if (d && clean(d.id, 200))
+    lines.push(
+      `Document affiché : « ${clean(d.title, 180)} » (id ${clean(d.id, 200)}, catégorie ${clean(d.category, 40)}). « Ce document » ou « cette page » désigne celui-ci : lis-le avec document_read avant de le modifier.`,
+    );
+  return lines.length ? `[Contexte : ${lines.join(" ")}]\n\n` : "";
+}
+
 export const assistantAllowed = (user) => user.role === "owner";
 
 export async function assistantStatus(user) {
@@ -64,9 +86,15 @@ export async function ask(user, input) {
     );
   const session =
     typeof input.conversation === "string" ? input.conversation : undefined;
+  const prompt = `${describeContext(input.context)}${message}`;
   let status, data;
   try {
-    [status, data] = await call("POST", "/ask", { message, session }, 330000);
+    [status, data] = await call(
+      "POST",
+      "/ask",
+      { message: prompt, session },
+      330000,
+    );
   } catch {
     throw new AppError(
       503,

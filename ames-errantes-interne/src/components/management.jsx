@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { Dashboard } from "./site-admin/dashboard";
 import "../styles/admin.css";
 import { api, timeLabel } from "./api";
-import { Assistant } from "./assistant";
 export function Management({ siteUrl }) {
   const [data, setData] = useState(null),
     [error, setError] = useState("");
@@ -55,22 +54,18 @@ const entities = {
   request_followup: "Suivi",
   document_publications: "Publication",
 };
-export function Activity({ navigate, onChanged }) {
+export function Activity() {
   const [items, setItems] = useState([]),
     [error, setError] = useState("");
-  const refresh = () =>
-    api("activity")
-      .then((d) => setItems(d.events))
-      .catch((e) => setError(e.message));
   useEffect(() => {
+    const refresh = () =>
+      api("activity")
+        .then((d) => setItems(d.events))
+        .catch((e) => setError(e.message));
     refresh();
     const timer = setInterval(refresh, 15000);
     return () => clearInterval(timer);
   }, []);
-  function changed() {
-    refresh();
-    onChanged?.();
-  }
   return (
     <>
       <div className="page-heading">
@@ -83,7 +78,19 @@ export function Activity({ navigate, onChanged }) {
           </p>
         </div>
       </div>
-      <Assistant navigate={navigate} onChanged={changed} />
+      <section className="panel">
+        <h2>Une conversation, des changements dans le projet</h2>
+        <p className="connection-help">
+          Dans Claude, demande par exemple : « Relis notre dossier d’accueil,
+          puis ajoute les questions manquantes aux points à suivre. » L’IA lit
+          les données à jour et conserve les anciennes versions. Les documents
+          restent privés tant que leur publication n’est pas demandée.
+        </p>
+        <p className="quiet-note">
+          Connexion MCP « ames-errantes » · Vos dossiers et leur historique sont
+          conservés dans la base commune.
+        </p>
+      </section>
       <h2 className="activity-heading">Derniers changements</h2>
       {error && <p role="alert">{error}</p>}
       <div className="document-list">

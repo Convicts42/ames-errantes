@@ -2305,16 +2305,80 @@ svg {
 .site-management .plain-fieldset p {
   margin: 12px 0;
 }
-.assistant-messages {
+.assistant-launcher {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
   display: grid;
-  gap: 12px;
-  max-height: 60vh;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(38, 60, 51, 0.25);
+  cursor: pointer;
+}
+.assistant-launcher:hover {
+  background: var(--ink);
+}
+.assistant-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--orange);
+}
+.assistant-popup {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  width: 380px;
+  height: min(560px, calc(100vh - 48px));
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: 0 16px 40px rgba(38, 60, 51, 0.2);
+  overflow: hidden;
+}
+.assistant-popup header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+.assistant-popup header strong {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: auto;
+}
+.assistant-popup header .text-button {
+  font-size: 12px;
+}
+.assistant-popup .error-message {
+  margin: 0 14px;
+  font-size: 13px;
+}
+.assistant-messages {
+  flex: 1;
+  display: grid;
+  align-content: start;
+  gap: 10px;
   overflow-y: auto;
-  margin: 15px 0;
+  padding: 14px;
 }
 .assistant-message {
-  max-width: 85%;
-  padding: 12px 15px;
+  max-width: 88%;
+  padding: 10px 13px;
   border-radius: 12px;
   background: var(--green-light);
 }
@@ -2334,18 +2398,25 @@ svg {
 }
 .assistant-form {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: flex-end;
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
 }
 .assistant-form textarea {
   flex: 1;
+  resize: none;
 }
 @media (max-width: 760px) {
-  .assistant-form {
-    flex-direction: column;
-    align-items: stretch;
+  .assistant-launcher {
+    right: 16px;
+    bottom: 16px;
   }
-  .assistant-message {
-    max-width: 100%;
+  .assistant-popup {
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 85vh;
+    border-radius: var(--radius) var(--radius) 0 0;
   }
 }
