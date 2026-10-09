@@ -210,42 +210,35 @@ export async function submitRequest(input, key, db = getDatabase()) {
   });
 }
 export async function listRequests(db = getDatabase()) {
-  return await Promise.all(
-    (
-      await db.query(
-        "SELECT id,kind,payload,status,created_at FROM requests ORDER BY created_at DESC LIMIT 500",
-        [],
-      )
-    ).rows.map(async (row) => {
-      const followup = (
-        await db.query("SELECT * FROM request_followup WHERE request_id=$1", [
-          row.id,
-        ])
-      ).rows[0];
-      return {
-        ...row,
-        payload: row.payload,
-        followup: {
-          stage: "received",
-          assignee: "",
-          notes: "",
-          nextAction: "",
-          appointment: "",
-          followupDate: "",
-          ...(followup ? followup.content : {}),
-          version: followup?.version || 0,
-        },
-        events: (
-          await db.query(
-            "SELECT actor,description,created_at FROM request_events WHERE request_id=$1 ORDER BY id DESC LIMIT 20",
-            [row.id],
-          )
-        ).rows.map((event) => ({
-          ...event,
-        })),
-      };
-    }),
-  );
+  // Two queries for the whole list instead of two per request.
+  const rows = (
+    await db.query(
+      "SELECT r.id,r.kind,r.payload,r.status,r.created_at,f.content AS followup,f.version AS followup_version FROM requests r LEFT JOIN request_followup f ON f.request_id=r.id ORDER BY r.created_at DESC LIMIT 500",
+      [],
+    )
+  ).rows;
+  const events = new Map(rows.map((row) => [row.id, []]));
+  for (const { request_id, ...event } of (
+    await db.query(
+      "SELECT request_id,actor,description,created_at FROM (SELECT *,row_number() OVER (PARTITION BY request_id ORDER BY id DESC) AS n FROM request_events WHERE request_id=ANY($1)) e WHERE n<=20 ORDER BY id DESC",
+      [rows.map((row) => row.id)],
+    )
+  ).rows)
+    events.get(request_id).push(event);
+  return rows.map(({ followup, followup_version, ...row }) => ({
+    ...row,
+    followup: {
+      stage: "received",
+      assignee: "",
+      notes: "",
+      nextAction: "",
+      appointment: "",
+      followupDate: "",
+      ...(followup || {}),
+      version: followup_version || 0,
+    },
+    events: events.get(row.id),
+  }));
 }
 export async function updateRequest(
   id,
