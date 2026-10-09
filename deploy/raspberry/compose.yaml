@@ -91,7 +91,11 @@ services:
       ]
     environment:
       <<: *environment
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CLAUDE_BRIDGE_SOCKET: /run/claude-bridge/bridge.sock
+    volumes:
+      - app-data:/data
+      - /opt/ames-errantes/shared/backups:/data/backups
+      - /opt/ames-errantes/shared/claude:/run/claude-bridge
     ports: ["${LAN_ADDRESS}:4174:3000"]
     healthcheck: *web-health
   worker:

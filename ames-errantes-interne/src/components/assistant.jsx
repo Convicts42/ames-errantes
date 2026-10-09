@@ -10,7 +10,7 @@ const actionLabels = {
 };
 
 export function Assistant({ navigate, onChanged }) {
-  const [enabled, setEnabled] = useState(null),
+  const [status, setStatus] = useState(null),
     [conversation, setConversation] = useState(null),
     [items, setItems] = useState([]),
     [message, setMessage] = useState(""),
@@ -19,7 +19,7 @@ export function Assistant({ navigate, onChanged }) {
     end = useRef(null);
   useEffect(() => {
     api("/api/assistant")
-      .then((d) => setEnabled(d.enabled))
+      .then(setStatus)
       .catch((e) => setError(e.message));
   }, []);
   useEffect(() => {
@@ -58,14 +58,14 @@ export function Assistant({ navigate, onChanged }) {
     setItems([]);
     setError("");
   }
-  if (enabled === false)
+  if (status?.reason === "owner") return null;
+  if (status?.reason === "offline")
     return (
       <section className="panel assistant">
         <h2>Assistant Claude</h2>
         <p className="connection-help">
-          L’assistant n’est pas encore activé sur ce serveur. Le responsable
-          technique doit ajouter une clé ANTHROPIC_API_KEY dans la configuration
-          de la Raspberry.
+          Le pont vers Claude Code ne répond pas sur la Raspberry. Vérifier que
+          Claude Code est connecté et que le service ames-claude-bridge tourne.
         </p>
       </section>
     );
@@ -83,7 +83,9 @@ export function Assistant({ navigate, onChanged }) {
         <p className="quiet-note">
           Demandez par exemple : « Relis notre dossier d’accueil, puis ajoute
           les questions manquantes aux points à suivre. » Claude lit les
-          documents à jour, garde chaque ancienne version et ne publie rien.
+          documents à jour, garde chaque ancienne version et ne publie rien. Il
+          utilise ton abonnement Claude : l’assistant n’apparaît que sur ton
+          compte.
         </p>
       )}
       <div className="assistant-messages" aria-live="polite">
@@ -122,7 +124,7 @@ export function Assistant({ navigate, onChanged }) {
           rows={3}
           maxLength={8000}
           value={message}
-          disabled={enabled === null}
+          disabled={!status?.available}
           onChange={(e) => setMessage(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) send(e);
@@ -130,7 +132,7 @@ export function Assistant({ navigate, onChanged }) {
         />
         <button
           className="button primary"
-          disabled={busy || !message.trim() || enabled === null}
+          disabled={busy || !message.trim() || !status?.available}
         >
           Envoyer
         </button>
