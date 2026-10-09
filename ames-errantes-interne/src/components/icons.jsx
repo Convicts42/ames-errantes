@@ -41,6 +41,7 @@ import {
   Redo2,
   Trash2,
   SquarePen,
+  Sparkles,
 } from "lucide-react";
 const icons = {
   compass: Compass,
@@ -85,6 +86,7 @@ const icons = {
   redo: Redo2,
   trash: Trash2,
   edit: SquarePen,
+  sparkles: Sparkles,
 };
 export function Icon({ name, size = 20, ...props }) {
   const Component = icons[name] || FileText;
