@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { join } from "node:path";
+import { readFileSync } from "node:fs";
 import { root, docker } from "./lib/environment.mjs";
 import { qaComposeArgs } from "./lib/qa.mjs";
 const run = promisify(execFile);
@@ -11,6 +12,10 @@ const invoke = (args) =>
     maxBuffer: 4 * 1024 * 1024,
   });
 const compose = (args) => invoke(qaComposeArgs(args));
+// Même version que le client des tests, pour garder l'image navigateur en cache.
+const playwrightVersion = JSON.parse(
+  readFileSync(join(root, "package.json"), "utf8"),
+).devDependencies["@playwright/test"];
 let database;
 let browserEndpoint;
 const containers = [];
@@ -31,6 +36,8 @@ try {
       "build",
       "--target",
       "browser",
+      "--build-arg",
+      `PLAYWRIGHT_VERSION=${playwrightVersion}`,
       "--tag",
       "ames-errantes-browser:4",
       root,
