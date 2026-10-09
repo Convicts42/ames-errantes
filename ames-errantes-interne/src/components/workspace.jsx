@@ -402,7 +402,7 @@ export function Workspace() {
           ) : pathname === "/gestion" ? (
             <Management user={user} siteUrl={siteUrl} />
           ) : pathname === "/activite" ? (
-            <Activity />
+            <Activity navigate={navigate} onChanged={refresh} />
           ) : pathname === "/compte" ? (
             <Account
               user={user}

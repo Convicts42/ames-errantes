@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@ames/core": "workspace:*",
+    "@anthropic-ai/sdk": "0.129.0",
     "@tiptap/extension-table": "3.31.4",
     "@tiptap/pm": "3.31.4",
     "@tiptap/react": "3.31.4",
@@ -29,6 +30,7 @@
     "next": "16.3.8",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "sanitize-html": "2.18.0"
+    "sanitize-html": "2.18.0",
+    "zod": "4.6.5"
   }
 }

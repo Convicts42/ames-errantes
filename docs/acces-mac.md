@@ -6,6 +6,8 @@ La Raspberry héberge les dossiers communs. Sur le Mac, l'application **Claude D
 
 Le Mac doit être sur le même réseau domestique que la Raspberry. Aucune ouverture Internet n'est nécessaire. Chaque personne garde son propre compte Claude : les dossiers sont partagés, pas les conversations ni les abonnements.
 
+Plus simple, sans rien installer : l'intranet propose aussi un assistant Claude dans la page « Activité & Claude », accessible depuis n'importe quel navigateur du réseau, dès que le responsable technique a configuré la clé de l'API Claude. La suite de ce guide n'est utile que pour travailler depuis Claude Desktop.
+
 ## 1. Créer sa clé, une seule fois
 
 Ouvrir Terminal sur le Mac et saisir :
