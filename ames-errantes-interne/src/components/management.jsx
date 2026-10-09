@@ -71,7 +71,7 @@ export function Activity() {
       <div className="page-heading">
         <div>
           <span className="eyebrow">TRAVAILLER AVEC L’IA</span>
-          <h1>Activité & Codex</h1>
+          <h1>Activité & Claude</h1>
           <p>
             Chaque modification est attribuée à son auteur, dans une base
             commune.
@@ -81,7 +81,7 @@ export function Activity() {
       <section className="panel">
         <h2>Une conversation, des changements dans le projet</h2>
         <p className="connection-help">
-          Dans Codex, demande par exemple : « Relis notre dossier d’accueil,
+          Dans Claude, demande par exemple : « Relis notre dossier d’accueil,
           puis ajoute les questions manquantes aux points à suivre. » L’IA lit
           les données à jour et conserve les anciennes versions. Les documents
           restent privés tant que leur publication n’est pas demandée.

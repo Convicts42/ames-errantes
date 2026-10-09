@@ -1,5 +1,7 @@
 # Organisation Raspberry — 5 octobre 2026
 
+> Journal historique. Les mentions de Codex et ChatGPT décrivent l'outillage IA de l'époque, remplacé depuis par Claude (voir le guide technique et le guide Mac).
+
 État : **opérationnel pour le responsable technique ; connexion du Mac à terminer ultérieurement**.
 
 ## Organisation vérifiée

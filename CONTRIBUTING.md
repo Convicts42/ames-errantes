@@ -2,7 +2,7 @@
 
 ## Un dépôt, un lieu de travail principal
 
-Le dépôt principal est `/home/convicts/projets/ames-errantes` sur la Raspberry. Le projet SSH ChatGPT du responsable technique pointe sur ce dossier. Il réunit le code des deux sites, le cœur partagé, le MCP, les tests et les commandes de déploiement. Les deux historiques originaux sont conservés.
+Le dépôt principal est `/home/convicts/projets/ames-errantes` sur la Raspberry. Il réunit le code des deux sites, le cœur partagé, le MCP, les tests et les commandes de déploiement. Les deux historiques originaux sont conservés.
 
 Le dépôt GitHub privé `Convicts42/ames-errantes` sert aux branches et aux PR, vérifiées par `.github/workflows/verify.yml`. Une PR fusionnée se récupère sur la Raspberry par `git pull --ff-only`. `D:\ame-errante` est une copie de secours sur le PC, à synchroniser de la même façon. Ne pas y poursuivre des modifications concurrentes. Un refus de fusion signale une divergence à examiner, pas une raison d'écraser l'une des copies.
 
@@ -51,9 +51,17 @@ Ne pas lancer plusieurs préparations ou suites QA en parallèle. Après interru
 
 Le profil MCP `documents` expose uniquement 9 outils de lecture/édition des dossiers, versions et tâches. Il ne permet pas la publication, l'administration du site, les fiches animales ou les demandes. Les appels à ces outils absents sont refusés côté serveur ; les consignes du modèle ne sont pas le mécanisme d'autorisation.
 
-Le compte Linux `ames-documents` possède son propre répertoire et sa propre connexion ChatGPT. Il n'appartient pas au groupe Docker. Une règle sudo précise autorise uniquement `/usr/local/libexec/ames-documents-mcp` sans argument, fichier appartenant à root qui impose le profil et l'acteur d'audit. Le pont lance une entrée dédiée `services/mcp/documents.mjs` qui impose le profil, même si une variable demande le profil complet. Une ancienne release dépourvue de cette entrée refuse la connexion documentaire : aucun élargissement de droits au retour arrière. Ne pas lui donner accès au socket Docker ou aux secrets de production.
+Le compte Linux `ames-documents` n'a pas de shell utilisable à distance : ses clés SSH sont enregistrées avec `restrict` et une commande imposée qui lance le MCP documentaire. Il n'appartient pas au groupe Docker. Une règle sudo précise autorise uniquement `/usr/local/libexec/ames-documents-mcp` sans argument, fichier appartenant à root qui impose le profil et l'acteur d'audit. Le pont lance une entrée dédiée `services/mcp/documents.mjs` qui impose le profil, même si une variable demande le profil complet. Une ancienne release dépourvue de cette entrée refuse la connexion documentaire : aucun élargissement de droits au retour arrière. Ne pas lui donner accès au socket Docker ou aux secrets de production.
 
-Installation administrative : `sudo bash deploy/raspberry/setup-documents-user.sh`. Ajouter ensuite la clé **publique** créée sur son Mac dans `/home/ames-documents/.ssh/authorized_keys`, puis effectuer l'authentification ChatGPT avec son propre compte. Ne pas copier le compte du responsable technique. Les limites de son abonnement et la disponibilité SSH/MCP se vérifient dans son application.
+Installation administrative : `sudo bash deploy/raspberry/setup-documents-user.sh`, puis `sudo bash deploy/raspberry/add-documents-key.sh "<clé publique>"` pour chaque appareil autorisé. Côté Mac, Claude Desktop lance ce MCP par SSH : voir le [guide Mac](docs/acces-mac.md). Ne pas copier le compte du responsable technique.
+
+## Travailler avec Claude
+
+- **Dans le cloud (claude.ai)** : le projet Claude est relié au dépôt GitHub. Le travail se fait par branches et PR, vérifiées par la CI, sans accès à la Raspberry ni à ses données.
+- **Sur la Raspberry** : installer Claude Code dans le compte `convicts` (`curl -fsSL https://claude.ai/install.sh | bash`), puis, depuis le dépôt de travail, `claude mcp add ames-errantes -- bash /opt/ames-errantes/current/deploy/raspberry/amesctl.sh mcp`. `CLAUDE.md` charge les consignes d'`AGENTS.md`.
+- **Depuis le PC** : Claude Desktop ou Claude Code peuvent lancer le MCP complet par SSH, avec la commande `ssh -T convicts@192.168.1.153 bash /opt/ames-errantes/current/deploy/raspberry/amesctl.sh mcp`.
+
+Les modifications faites par l'IA sont attribuées à « IA · Claude » dans l'historique (« IA · ames-documents » pour le profil documentaire).
 
 ## Données et sauvegardes
 
