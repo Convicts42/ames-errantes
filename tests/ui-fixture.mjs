@@ -1,8 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { legacyFixture } from "./fixtures/legacy.mjs";
+import { seedDemo } from "./fixtures/demo.mjs";
 import { openDatabase } from "../packages/core/src/database.mjs";
 import { migrate } from "../packages/core/src/migrate.mjs";
-import { importSqliteExport } from "../packages/core/src/legacy-import.mjs";
 import { createUser } from "../packages/core/src/auth.mjs";
 const control = openDatabase();
 let db;
@@ -19,7 +18,7 @@ try {
     url.pathname = `/${name}`;
     db = openDatabase(url.href);
     await migrate(db);
-    await importSqliteExport(legacyFixture(), db);
+    await seedDemo(db);
     await createUser(
       { username: "qa-owner", name: "QA", password: "Only-test-Password-456" },
       "owner",

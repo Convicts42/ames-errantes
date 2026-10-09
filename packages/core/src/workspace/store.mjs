@@ -1,13 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { getDatabase, transaction } from "../database.mjs";
 import { AppError, text, choice, version } from "./errors.mjs";
-import { cleanHtml, plainText, importMarkdown } from "./content.mjs";
+import { cleanHtml, plainText } from "./content.mjs";
 import {
   categories,
   documentStatuses,
   taskStatuses,
 } from "../shared/project.js";
-import { initialTasks } from "./seed.mjs";
 const now = () => new Date().toISOString();
 async function snapshot(db, d) {
   await db.query(
@@ -23,77 +22,6 @@ async function snapshot(db, d) {
       d.updated_at,
     ],
   );
-}
-export async function importDocuments(source, db = getDatabase()) {
-  if (!Array.isArray(source.documents)) throw new Error("Invalid import");
-  const mapping = new Map(source.documents.map((d) => [d.sourceId, d.id]));
-  return await transaction(db, async () => {
-    let added = 0;
-    for (const d of source.documents) {
-      if (
-        (
-          await db.query(
-            "SELECT id FROM documents WHERE id=$1 OR source_id=$2",
-            [d.id, d.sourceId],
-          )
-        ).rows[0]
-      )
-        continue;
-      const html = importMarkdown(d.markdown, mapping);
-      await db.query(
-        "INSERT INTO documents(id,title,category,status,html,search_text,updated_at,updated_by,source_id,imported_markdown) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)",
-        [
-          d.id,
-          d.title,
-          d.category,
-          d.status,
-          html,
-          plainText(html),
-          now(),
-          "Import du dossier vérifié",
-          d.sourceId,
-          d.markdown,
-        ],
-      );
-      await snapshot(db, await getDocument(d.id, db));
-      added++;
-    }
-    // Seed the working checklist only once, without turning proposals into decisions.
-    if (
-      !(await db.query("SELECT value FROM meta WHERE key='tasks_seeded'", []))
-        .rows[0]
-    ) {
-      for (const t of initialTasks)
-        if (
-          (
-            await db.query("SELECT id FROM documents WHERE id=$1", [
-              t.documentId,
-            ])
-          ).rows[0]
-        )
-          await db.query(
-            "INSERT INTO tasks(id,title,note,status,document_id,updated_at,updated_by) VALUES($1,$2,$3,$4,$5,$6,$7)",
-            [
-              t.id,
-              t.title,
-              t.note,
-              t.status,
-              t.documentId,
-              now(),
-              "Dossier de vérification",
-            ],
-          );
-      await db.query(
-        "INSERT INTO meta(key,value) VALUES('tasks_seeded','true')",
-        [],
-      );
-    }
-    await db.query(
-      "INSERT INTO meta(key,value) VALUES('last_import',$1) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
-      [now()],
-    );
-    return added;
-  });
 }
 export async function listDocuments(db = getDatabase()) {
   return (

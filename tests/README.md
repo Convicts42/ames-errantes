@@ -15,7 +15,7 @@ La première commande construit les deux applications. Les suivantes utilisent e
 
 Les 11 tests de `platform.test.mjs` créent chacun une base temporaire `ames_test_*`, supprimée à la fin. Ils couvrent les conflits de versions, les transactions et acteurs, la publication explicite, les sessions, les limites concurrentes, les animaux, les photos, les demandes, l’import historique et la restauration réelle d’un dump PostgreSQL. Le MCP est testé à travers son transport stdio réel, y compris le profil documentaire limité et son acteur distinct.
 
-L’export de `fixtures/legacy.mjs` est entièrement fictif : 15 documents, plusieurs versions et un compte désactivé sans mot de passe utilisable. Il est recréé pour chaque test. Aucun dossier ou compte réel n’est copié dans la QA.
+`fixtures/demo.mjs` crée des données entièrement fictives via le code métier : les animaux de démonstration, 15 dossiers en deux versions et un point à suivre. Elles sont recréées pour chaque base de test. Aucun dossier ou compte réel n’est copié dans la QA.
 
 ## Parcours navigateur
 
@@ -27,7 +27,6 @@ Le navigateur est Chrome sous Windows et Chromium Playwright dans un conteneur d
 
 Ces scripts ne sont **pas** lancés par les tests ni par la CI :
 
-- `live-check.mjs` : contrôle ponctuel de l’ancienne migration locale ; dépend de fichiers privés et de nombres datés du 4 octobre 2026.
 - `services/mcp/verify-raspberry.mjs` : contrôle du MCP distant en lecture seule.
 - `raspberry-check.mjs` : interface Raspberry réelle, compte privé et nombres attendus à la date de migration. Actualiser ces attentes après toute évolution métier volontaire.
 
