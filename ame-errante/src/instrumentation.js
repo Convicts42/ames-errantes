@@ -3,7 +3,7 @@ export async function register() {
     process.env.NEXT_RUNTIME === "nodejs" &&
     process.env.NEXT_PHASE !== "phase-production-build"
   ) {
-    const { startMaintenance } = await import("./server/maintenance.mjs");
+    const { startMaintenance } = await import("@ames/core/site/maintenance.mjs");
     startMaintenance();
   }
 }

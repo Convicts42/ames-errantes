@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { connection } from "next/server";
-import { publicSettings } from "../server/settings.mjs";
+import { publicSettings } from "@ames/core/site/settings.mjs";
 import { Header } from "./header";
 import { Footer } from "./site-parts";
 import { DonationDialog } from "./donation-dialog";

@@ -2,8 +2,8 @@ import { endpoint, json, readBytes } from "../../../../server/http";
 import {
   verifyWebhook,
   applyWebhook,
-} from "../../../../server/notifications.mjs";
-import { HttpError } from "../../../../server/validation.mjs";
+} from "@ames/core/site/notifications.mjs";
+import { HttpError } from "@ames/core/site/validation.mjs";
 export const runtime = "nodejs";
 export const GET = endpoint(async (request) => {
   const p = new URL(request.url).searchParams;

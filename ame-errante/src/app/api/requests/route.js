@@ -1,4 +1,4 @@
-import { submitRequest } from "../../../server/repository.mjs";
+import { submitRequest } from "@ames/core/site/repository.mjs";
 import { body, endpoint, json } from "../../../server/http";
 export const runtime = "nodejs";
 export const POST = endpoint(async (request) => {

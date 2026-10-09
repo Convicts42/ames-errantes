@@ -1,4 +1,4 @@
-import { readPhoto } from "../../../server/media.mjs";
+import { readPhoto } from "@ames/core/site/media.mjs";
 export const runtime = "nodejs";
 export async function GET(request, { params }) {
   const { id } = await params;

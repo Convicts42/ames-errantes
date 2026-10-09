@@ -1,4 +1,4 @@
-import { getAnimal } from "../../../../server/repository.mjs";
+import { getAnimal } from "@ames/core/site/repository.mjs";
 import { endpoint, json } from "../../../../server/http";
 export const runtime = "nodejs";
 export const GET = endpoint(async (_request, { params }) => {

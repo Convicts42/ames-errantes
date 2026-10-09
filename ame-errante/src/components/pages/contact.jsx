@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ContactForm } from "../contact-form";
 import { PracticalInfo } from "../practical-info";
-import { publicSettings } from "../../server/settings.mjs";
-import { whatsappAvailable } from "../../server/notifications.mjs";
+import { publicSettings } from "@ames/core/site/settings.mjs";
+import { whatsappAvailable } from "@ames/core/site/notifications.mjs";
 export default async function PageContent() {
   return (
     <>

@@ -1,4 +1,4 @@
-import { publicSettings } from "../server/settings.mjs";
+import { publicSettings } from "@ames/core/site/settings.mjs";
 export async function PracticalInfo({ adoption = false }) {
   const s = await publicSettings();
   const fields = adoption

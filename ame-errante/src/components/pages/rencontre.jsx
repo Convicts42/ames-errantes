@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { MeetingForm } from "../meeting-form";
-import { listAnimals } from "../../server/repository.mjs";
-import { publicSettings } from "../../server/settings.mjs";
-import { whatsappAvailable } from "../../server/notifications.mjs";
+import { listAnimals } from "@ames/core/site/repository.mjs";
+import { publicSettings } from "@ames/core/site/settings.mjs";
+import { whatsappAvailable } from "@ames/core/site/notifications.mjs";
 export default async function PageContent() {
   return (
     <>
