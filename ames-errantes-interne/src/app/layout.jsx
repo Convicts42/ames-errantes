@@ -1,3 +1,4 @@
+import "@ames/core/styles/tokens.css";
 import "../styles/globals.css";
 export const metadata = {
   title: {
@@ -11,7 +12,7 @@ export const metadata = {
   },
 };
 export const viewport = {
-  themeColor: "#284b3e",
+  themeColor: "#223e30",
 };
 export default function RootLayout({ children }) {
   return (

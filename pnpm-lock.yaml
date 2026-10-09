@@ -35,9 +35,6 @@ importers:
       sharp:
         specifier: ^0.35.5
         version: 0.35.5
-      three:
-        specifier: 0.186.1
-        version: 0.186.1
 
   ames-errantes-interne:
     dependencies:
@@ -1134,9 +1131,6 @@ packages:
       babel-plugin-macros:
         optional: true
 
-  three@0.186.1:
-    resolution: {integrity: sha512-blFeqb49wRCSGUGj7gtpfnSGHy2lwDk94RhUmS1c/hTby70kvChbWpkJ4Pm1390LqzzvTmzgXKHPEafJwCb8jA==}
-
   toidentifier@1.0.1:
     resolution: {integrity: sha512-o5sSPKEkg/DIQNmH43V0/uerLrpzVedkUh8tGNvaeXpfpuwjKenlSox/2O/BTlZUtEe+JG7s5YhEz608PlAHRA==}
     engines: {node: '>=0.6'}
@@ -2216,8 +2210,6 @@ snapshots:
     dependencies:
       client-only: 0.0.1
       react: 19.3.0
-
-  three@0.186.1: {}
 
   toidentifier@1.0.1: {}
 

@@ -4,21 +4,21 @@ export const pages = [
     label: "Accueil",
     title: "Chaque âme mérite un foyer",
     description:
-      "Âme Errante, une association de protection animale. Des rencontres, de la douceur et une seconde chance.",
+      "Âmes errantes, une association de protection animale. Des rencontres, de la douceur et une seconde chance.",
   },
   {
     slug: "association",
     label: "Qui sommes-nous",
     title: "Notre association",
     description:
-      "Protéger, accompagner et réunir : découvrez la mission et les valeurs d’Âme Errante.",
+      "Protéger, accompagner et réunir : découvrez la mission et les valeurs d’Âmes errantes.",
   },
   {
     slug: "animaux",
     label: "Nos animaux",
     title: "Nos compagnons",
     description:
-      "Découvrez les portraits illustratifs du catalogue Âme Errante et préparez une rencontre.",
+      "Découvrez les portraits illustratifs du catalogue Âmes errantes et préparez une rencontre.",
   },
   {
     slug: "adopter",
@@ -105,7 +105,7 @@ pages.push(
     slug,
     label,
     title: label,
-    description: `${label} — Âme Errante.`,
+    description: `${label} — Âmes errantes.`,
     nav: slug === "belles-histoires" ? "animaux" : "nous-aider",
   })),
 );

@@ -1,0 +1,29 @@
+/*
+ * Identité visuelle commune au site public et à l'intranet.
+ * Chaque application garde ses propres @font-face (chemins différents)
+ * et peut nommer ces jetons à sa façon dans son :root.
+ */
+:root {
+  --ae-forest: #223e30;
+  --ae-forest-deep: #183123;
+  --ae-forest-soft: #e8eee3;
+  --ae-sage: #596e4e;
+  --ae-paper: #fbf8ef;
+  --ae-paper-deep: #f1eee2;
+  --ae-surface: #fffdf7;
+  --ae-cream: #fff0d1;
+  --ae-gold: #ae7741;
+  --ae-gold-text: #8a5a2c;
+  --ae-muted: #616b5e;
+  --ae-line: #dadcce;
+  --ae-danger: #923c29;
+
+  --ae-serif: "Cormorant Garamond", Georgia, serif;
+  --ae-sans: "DM Sans", Arial, sans-serif;
+  --ae-hand: "Caveat", cursive;
+
+  --ae-radius-s: 12px;
+  --ae-radius-m: 18px;
+  --ae-radius-l: 28px;
+  --ae-shadow: 0 12px 30px rgb(34 62 48 / 14%);
+}

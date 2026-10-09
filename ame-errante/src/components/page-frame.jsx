@@ -10,9 +10,7 @@ export async function PageFrame({ page, children }) {
   await connection();
   const settings = await publicSettings();
   return (
-    <div
-      className={`${page.slug === "index" ? "home-page" : "interior-page"} page-${page.slug}`}
-    >
+    <div className={`site-page page-${page.slug}`}>
       <a className="skip-link" href="#contenu">
         Aller au contenu
       </a>

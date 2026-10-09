@@ -11,7 +11,7 @@
 }
 .admin-card {
   padding: 28px;
-  background: #fffdf7;
+  background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 22px;
 }
@@ -76,7 +76,7 @@
   border: 1px solid var(--line);
   border-radius: 18px;
   padding: 24px;
-  background: #edf0e4;
+  background: var(--paper);
 }
 .admin-stats strong {
   display: block;
@@ -141,7 +141,7 @@
   margin: 0;
 }
 .danger {
-  color: #923c29;
+  color: var(--ae-danger);
 }
 .photo-grid {
   display: grid;
